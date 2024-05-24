@@ -22,15 +22,18 @@ from router.notification import notify_router
 from router.referral import referral_router
 from router.story import story_router
 from router.tariff import tariff_router
+import sentry_sdk
 
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     await create_tables()
-#     print("База готова")
-#     yield
-#     # await delete_tables()
-#     # print("База очищена")
+sentry_sdk.init(
+    dsn="https://ebde623893c3776c1f43e16d99d978f5@o1016854.ingest.us.sentry.io/4507310160740352",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
