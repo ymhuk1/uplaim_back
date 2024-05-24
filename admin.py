@@ -91,8 +91,8 @@ class CategoryAdmin(ModelView, model=Category):
 
 class CompanyAdmin(ModelView, model=Company):
     column_list = [Company.id, Company.name, Company.category, Company.news]
-    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls, Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies, Company.reviews_rating]
-    column_details_exclude_list = [Company.category_id]
+    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls, Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies, Company.reviews_rating, Company.holder_company, Company.another_photo]
+    column_details_exclude_list = [Company.category_id, Company.another_photo]
     name = "Компания"
     name_plural = "Компании"
     icon = "fa-solid fa-vcard"
@@ -286,4 +286,4 @@ class SettingAdmin(ModelView, model=Setting):
     form_excluded_columns = [Story.created_at, Story.updated_at]
     name = "Настройки"
     name_plural = "Настройки"
-    icon = "fa-solid fa-archive"
+    icon = "fa-solid fa-sliders"

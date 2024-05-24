@@ -144,7 +144,7 @@ class CompanyModel(BaseModel):
     city_id: Optional[int] = None
     category: CategoryModel
     category_id: Optional[int] = None
-    another_photo: PhotoModel = []
+    another_photo: Optional[list] = []
     reviews: List[ReviewModel] = []
     news: List[NewsModel] = []
     coupons: List[CouponModel] = []

@@ -183,21 +183,26 @@ class CompanyRepository:
                 select(Company).where(Company.id == company_id).options(joinedload(Company.category)))
 
             company = company.scalars().first()
-            if not company:
-                return None
-            if reviews_rating:
-                company.reviews_rating = reviews_rating
-
-
-            if token:
-                client = await session.execute(select(Client).where(Client.token == token))
-                client = client.scalars().first()
-                if client:
-                    tariff = client.tariff
-                    company.max_pay_point = await calculate_max_balls(tariff, company, session)
-                    company.cashback = await calculate_cashback(tariff, company, session)
-
             if company:
+                company.another_photo = []
+
+                for i in range(1, 6):
+                    photo_attr = f'dop_photo_{i}'
+                    photo_value = getattr(company, photo_attr, None)
+                    if photo_value:
+                        company.another_photo.append({"id": i, "photo": photo_value})
+
+                if reviews_rating:
+                    company.reviews_rating = reviews_rating
+
+                if token:
+                    client = await session.execute(select(Client).where(Client.token == token))
+                    client = client.scalars().first()
+                    if client:
+                        tariff = client.tariff
+                        company.max_pay_point = await calculate_max_balls(tariff, company, session)
+                        company.cashback = await calculate_cashback(tariff, company, session)
+
                 return company
             else:
                 return None

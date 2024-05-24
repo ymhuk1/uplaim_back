@@ -191,6 +191,7 @@ class Company(Base):
 
     # user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     # user = relationship("User")
+    another_photo = Column(JSON, nullable=True)
 
     dop_photo_1 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
     dop_photo_2 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
@@ -315,6 +316,9 @@ class Coupon(Base):
     color = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return self.name
 
 
 class Tariff(Base):
