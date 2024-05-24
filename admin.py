@@ -87,17 +87,27 @@ class CategoryAdmin(ModelView, model=Category):
     name = "Категория"
     name_plural = "Категории"
     icon = "fa-solid fa-align-left"
-    form_overrides = {
-        'icon': wtforms.FileField
-    }
+    # form_overrides = {
+    #     'icon': wtforms.FileField
+    # }
 
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('icon')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'category', 'icon', )
-        else:
-            form['icon'] = None
+    # async def on_model_change(self, form, model, is_created, request):
+    #     print('???????????/')
+    #     filename = form.get('icon')
+    #
+    #     if filename:
+    #         await save_photo(is_created, form, model, 'category', 'icon', )
+    #     else:
+    #         form['icon'] = None
+    #
+    # async def after_model_change(self, form, model, is_created, request):
+    #     print('!!!!!!!!!')
+    #
+    # async def on_model_delete(self, model, request):
+    #     print('11111111')
+    #
+    # async def after_model_delete(self, model, request):
+    #     print('222222')
 
 
 class CompanyAdmin(ModelView, model=Company):
@@ -123,16 +133,21 @@ class CompanyAdmin(ModelView, model=Company):
                       }
 
     async def on_model_change(self, form, model, is_created, request):
+        if is_created is False:
+            print('???????????/')
+
         filename = form.get('main_photo')
         dop_filename_1 = form.get('dop_photo_1')
         dop_filename_2 = form.get('dop_photo_2')
         dop_filename_3 = form.get('dop_photo_3')
         dop_filename_4 = form.get('dop_photo_4')
         dop_filename_5 = form.get('dop_photo_5')
-
-        if filename.filename:
+        print('!!!!!!!!!!!')
+        if filename:
+            print('true')
             await save_photo(is_created, form, model, 'company', 'main_photo', 'main_photo')
         else:
+            print('false')
             form['main_photo'] = None
 
         if dop_filename_1.filename:
