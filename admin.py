@@ -87,27 +87,6 @@ class CategoryAdmin(ModelView, model=Category):
     name = "Категория"
     name_plural = "Категории"
     icon = "fa-solid fa-align-left"
-    # form_overrides = {
-    #     'icon': wtforms.FileField
-    # }
-
-    # async def on_model_change(self, form, model, is_created, request):
-    #     print('???????????/')
-    #     filename = form.get('icon')
-    #
-    #     if filename:
-    #         await save_photo(is_created, form, model, 'category', 'icon', )
-    #     else:
-    #         form['icon'] = None
-    #
-    # async def after_model_change(self, form, model, is_created, request):
-    #     print('!!!!!!!!!')
-    #
-    # async def on_model_delete(self, model, request):
-    #     print('11111111')
-    #
-    # async def after_model_delete(self, model, request):
-    #     print('222222')
 
 
 class CompanyAdmin(ModelView, model=Company):
@@ -123,57 +102,6 @@ class CompanyAdmin(ModelView, model=Company):
             "order_by": Client.id,
         }
     }
-    form_overrides = {
-                        'main_photo': wtforms.FileField,
-                        'dop_photo_1': wtforms.FileField,
-                        'dop_photo_2': wtforms.FileField,
-                        'dop_photo_3': wtforms.FileField,
-                        'dop_photo_4': wtforms.FileField,
-                        'dop_photo_5': wtforms.FileField,
-                      }
-
-    async def on_model_change(self, form, model, is_created, request):
-        if is_created is False:
-            print('???????????/')
-
-        filename = form.get('main_photo')
-        dop_filename_1 = form.get('dop_photo_1')
-        dop_filename_2 = form.get('dop_photo_2')
-        dop_filename_3 = form.get('dop_photo_3')
-        dop_filename_4 = form.get('dop_photo_4')
-        dop_filename_5 = form.get('dop_photo_5')
-        print('!!!!!!!!!!!')
-        if filename:
-            print('true')
-            await save_photo(is_created, form, model, 'company', 'main_photo', 'main_photo')
-        else:
-            print('false')
-            form['main_photo'] = None
-
-        if dop_filename_1.filename:
-            await save_photo(is_created, form, model, 'company', 'dop_photo_1', 'another_photo')
-        else:
-            form['dop_photo_1'] = None
-
-        if dop_filename_2.filename:
-            await save_photo(is_created, form, model, 'company', 'dop_photo_2', 'another_photo')
-        else:
-            form['dop_photo_2'] = None
-
-        if dop_filename_3.filename:
-            await save_photo(is_created, form, model, 'company', 'dop_photo_3', 'another_photo')
-        else:
-            form['dop_photo_3'] = None
-
-        if dop_filename_4.filename:
-            await save_photo(is_created, form, model, 'company', 'dop_photo_4', 'another_photo')
-        else:
-            form['dop_photo_4'] = None
-
-        if dop_filename_5.filename:
-            await save_photo(is_created, form, model, 'company', 'dop_photo_5', 'another_photo')
-        else:
-            form['dop_photo_5'] = None
 
 
 class NewsAdmin(ModelView, model=News):
@@ -182,17 +110,6 @@ class NewsAdmin(ModelView, model=News):
     name = "Новость"
     name_plural = "Новости"
     icon = "fa-solid fa-newspaper"
-    form_overrides = {
-        'photo': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('photo')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'news', 'photo', )
-        else:
-            form['photo'] = None
 
 
 class TagAdmin(ModelView, model=Tag):
@@ -234,17 +151,6 @@ class TariffAdmin(ModelView, model=Tariff):
     name = "Тариф"
     name_plural = "Тарифы"
     icon = "fa-solid fa-flask"
-    form_overrides = {
-        'icon': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('icon')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'tariff', 'icon', )
-        else:
-            form['icon'] = None
 
 
 class SubscribedTariffAdmin(ModelView, model=SubscribedTariff):
@@ -303,17 +209,6 @@ class CompetitionAdmin(ModelView, model=Competition):
     name = "Конкурс"
     name_plural = "Конкурсы"
     icon = "fa-solid fa-cubes"
-    form_overrides = {
-        'photo': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('photo')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'competition', 'photo', )
-        else:
-            form['photo'] = None
 
     async def after_model_change(self, data, model, is_created, request):
         if is_created:
@@ -348,17 +243,6 @@ class PrizeAdmin(ModelView, model=Prize):
     name = "Приз"
     name_plural = "Призы"
     icon = "fa-solid fa-gift"
-    form_overrides = {
-        'photo': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('photo')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'prize', 'photo', )
-        else:
-            form['photo'] = None
 
 
 class TicketAdmin(ModelView, model=Ticket):
@@ -377,17 +261,6 @@ class TaskAdmin(ModelView, model=Task):
     name = "Задание"
     name_plural = "Задания"
     icon = "fa-solid fa-tasks"
-    form_overrides = {
-        'photo': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('photo')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'task', 'photo', )
-        else:
-            form['photo'] = None
 
 
 class TransactionCompetitionAdmin(ModelView, model=TransactionCompetition):
@@ -406,25 +279,6 @@ class StoryAdmin(ModelView, model=Story):
     name = "Истории"
     name_plural = "Истории"
     icon = "fa-solid fa-archive"
-
-    form_overrides = {
-        'icon': wtforms.FileField,
-        'photo': wtforms.FileField
-    }
-
-    async def on_model_change(self, form, model, is_created, request):
-        filename = form.get('icon')
-        photo_filename = form.get('photo')
-
-        if filename.filename:
-            await save_photo(is_created, form, model, 'story', 'icon', )
-        else:
-            form['icon'] = None
-
-        if photo_filename.filename:
-            await save_photo(is_created, form, model, 'story', 'photo', )
-        else:
-            form['photo'] = None
 
 
 class SettingAdmin(ModelView, model=Setting):
