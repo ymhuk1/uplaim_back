@@ -1,8 +1,10 @@
+from sqlalchemy import select
+
 from models import Setting
 
 
-def calculate_max_balls(tariff, company):
-    settings = Setting.query.filter_by(id=1).first()
+async def calculate_max_balls(tariff, company, session):
+    settings = await session.execute(select(Setting).where(Setting.id == 1))
     if company.max_pay_point:
         max_pay_point = int(company.max_pay_point)
     else:

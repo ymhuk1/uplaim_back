@@ -10,7 +10,7 @@ from starlette.staticfiles import StaticFiles
 from admin import CityAdmin, UserAdmin, ClientAdmin, CategoryAdmin, CompanyAdmin, NewsAdmin, TagAdmin, ReviewAdmin, \
     BallsAdmin, CouponAdmin, TariffAdmin, SubscribedTariffAdmin, NotificationAdmin, ReferralAdmin, RewardAdmin, \
     ExchangeAdmin, TransactionAdmin, CompetitionAdmin, PrizeAdmin, TicketAdmin, TaskAdmin, TransactionCompetitionAdmin, \
-    StoryAdmin, AdminAuth
+    StoryAdmin, AdminAuth, SettingAdmin
 from db import engine
 from router.auth import auth_router as auth_router
 from router.category import category_router
@@ -83,3 +83,5 @@ admin.add_view(TicketAdmin)
 admin.add_view(TaskAdmin)
 admin.add_view(TransactionCompetitionAdmin)
 admin.add_view(StoryAdmin)
+admin.add_view(SettingAdmin)
+

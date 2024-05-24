@@ -191,8 +191,8 @@ class CompanyRepository:
                 client = client.scalars().first()
                 if client:
                     tariff = client.tariff
-                    company.max_pay_point = calculate_max_balls(tariff, company)
-                    company.cashback = calculate_cashback(tariff, company)
+                    company.max_pay_point = calculate_max_balls(tariff, company, session)
+                    company.cashback = calculate_cashback(tariff, company, session)
 
             if company:
                 return company

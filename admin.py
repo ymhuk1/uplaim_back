@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 from db import new_session
 from models import User, City, Client, Category, Company, News, Tag, Review, Balls, Coupon, Tariff, SubscribedTariff, \
     Notification, Referral, Reward, Exchange, Transaction, Competition, Prize, Ticket, Task, TransactionCompetition, \
-    Story
+    Story, Setting
 from utils.auth_user import get_password_hash, authenticate_user, create_access_token
 from utils.save_photo import save_photo
 
@@ -425,3 +425,11 @@ class StoryAdmin(ModelView, model=Story):
             await save_photo(is_created, form, model, 'story', 'photo', )
         else:
             form['photo'] = None
+
+
+class SettingAdmin(ModelView, model=Setting):
+    column_list = [Setting.id]
+    form_excluded_columns = [Story.created_at, Story.updated_at]
+    name = "Настройки"
+    name_plural = "Настройки"
+    icon = "fa-solid fa-archive"
