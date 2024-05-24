@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Table, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Table, Float, JSON
 from sqlalchemy.orm import declarative_base, relationship
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
@@ -174,8 +174,8 @@ class Company(Base):
     ur_address = Column(String, nullable=True)
     type_discounts = Column(String, nullable=True)
     discount_size = Column(String, nullable=True)
-    max_pay_point = Column(String, nullable=True)
-    cashback = Column(String, nullable=True)
+    max_pay_point = Column(JSON, nullable=True)
+    cashback = Column(JSON, nullable=True)
     visible = Column(Boolean, default=True)
     color = Column(String, nullable=True)
     welcome_balls = Column(String, nullable=True)

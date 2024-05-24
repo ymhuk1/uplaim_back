@@ -4,7 +4,14 @@ from models import Setting
 
 
 async def calculate_max_balls(tariff, company, session):
-    settings = await session.execute(select(Setting).where(Setting.id == 1))
+    result = await session.execute(select(Setting).where(Setting.id == 1))
+    if result:
+        settings = result.scalars().first()
+        if settings is None:
+            return None
+    else:
+        return None
+
     if company.max_pay_point:
         max_pay_point = int(company.max_pay_point)
     else:

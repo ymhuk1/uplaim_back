@@ -134,8 +134,8 @@ class CompanyModel(BaseModel):
     ur_address: Optional[str] = None
     type_discounts: Optional[str] = None
     discount_size: Optional[str] = None
-    max_pay_point: Optional[str] = None
-    cashback: Optional[str] = None
+    max_pay_point: Optional[dict] = {}
+    cashback: Optional[dict] = {}
     visible: Optional[bool] = None
     color: Optional[str] = None
     welcome_balls: Optional[str] = None

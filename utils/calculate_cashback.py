@@ -4,7 +4,14 @@ from models import Setting
 
 
 async def calculate_cashback(tariff, company, session):
-    settings = await session.execute(select(Setting).where(Setting.id == 1))
+    result = await session.execute(select(Setting).where(Setting.id == 1))
+    if result:
+        settings = result.scalars().first()
+        if settings is None:
+            return None
+    else:
+        return None
+
     if company.cashback:
         cashback = int(company.cashback)
     else:

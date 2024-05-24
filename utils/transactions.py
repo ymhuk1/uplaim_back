@@ -27,8 +27,7 @@ async def get_up_balance(client_id):
         result = await session.execute(select(Client).where(Client.id == client_id))
         client = result.scalars().first()
 
-        transactions = [t for t in client.transactions if t.up_balance != None and t.status == "succes"]
-        print('transactions: ', transactions)
+        transactions = [t for t in client.transactions if t.up_balance != None and t.status == "success"]
 
         up_balance = 0
         for transaction in transactions:

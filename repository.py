@@ -183,16 +183,19 @@ class CompanyRepository:
                 select(Company).where(Company.id == company_id).options(joinedload(Company.category)))
 
             company = company.scalars().first()
+            if not company:
+                return None
             if reviews_rating:
                 company.reviews_rating = reviews_rating
+
 
             if token:
                 client = await session.execute(select(Client).where(Client.token == token))
                 client = client.scalars().first()
                 if client:
                     tariff = client.tariff
-                    company.max_pay_point = calculate_max_balls(tariff, company, session)
-                    company.cashback = calculate_cashback(tariff, company, session)
+                    company.max_pay_point = await calculate_max_balls(tariff, company, session)
+                    company.cashback = await calculate_cashback(tariff, company, session)
 
             if company:
                 return company
@@ -204,11 +207,9 @@ class CompanyRepository:
         async with new_session() as session:
             result = await session.execute(select(Client).where(Client.id == data.client_id))
             client = result.scalars().first()
-            print('client', client)
 
             result = await session.execute(select(Company).where(Company.id == data.company_id))
             company = result.scalars().first()
-            print('company', company)
 
             if not client or not company:
                 return False
