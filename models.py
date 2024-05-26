@@ -242,7 +242,7 @@ class News(Base):
     tags = relationship("Tag", back_populates="news")
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Tag(Base):
@@ -260,7 +260,7 @@ class Tag(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Review(Base):

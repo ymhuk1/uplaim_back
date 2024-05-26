@@ -103,6 +103,13 @@ class TariffModel(BaseModel):
     # subscribed: Optional[str] = None
 
 
+class TagModel(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    text_color: Optional[str] = None
+    background_color: Optional[str] = None
+
+
 class CategoryCompanies(BaseModel):
     category_id: int
 
@@ -150,6 +157,7 @@ class CompanyModel(BaseModel):
     coupons: List[CouponModel] = []
     reviews_rating: Optional[float] = None
     tariffs: Optional[List[TariffModel]] = []
+    tags: Optional[List[TagModel]] = []
 
 
 class CompanyModelOne(BaseModel):
