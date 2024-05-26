@@ -211,8 +211,8 @@ class Company(Base):
     coupons = relationship("Coupon", back_populates="company", lazy="subquery")
 
     clients = relationship('Client', secondary="company_client_link", back_populates="companies")
-    tags = relationship("Tag", secondary="company_tag_link", back_populates="companies")
-    tariffs = relationship("Tariff", secondary="company_tariff_link", back_populates="companies")
+    tags = relationship("Tag", secondary="company_tag_link", back_populates="companies", lazy="subquery")
+    tariffs = relationship("Tariff", secondary="company_tariff_link", back_populates="companies", lazy="subquery")
 
     holder_company = relationship('Exchange', foreign_keys='Exchange.holder_company_id',
                                   back_populates='holder_company')

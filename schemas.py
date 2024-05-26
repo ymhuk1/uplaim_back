@@ -149,6 +149,7 @@ class CompanyModel(BaseModel):
     news: List[NewsModel] = []
     coupons: List[CouponModel] = []
     reviews_rating: Optional[float] = None
+    tariffs: Optional[List[TariffModel]] = []
 
 
 class CompanyModelOne(BaseModel):
