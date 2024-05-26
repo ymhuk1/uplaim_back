@@ -86,6 +86,9 @@ class CategoryAdmin(ModelView, model=Category):
     name = "Категория"
     name_plural = "Категории"
     icon = "fa-solid fa-align-left"
+    form_overrides = {
+        "color": wtforms.ColorField
+    }
 
 
 class CompanyAdmin(ModelView, model=Company):
@@ -100,6 +103,9 @@ class CompanyAdmin(ModelView, model=Company):
             "fields": ("name", "id"),
             "order_by": Client.id,
         }
+    }
+    form_overrides = {
+        "color": wtforms.ColorField
     }
 
 
@@ -117,6 +123,10 @@ class TagAdmin(ModelView, model=Tag):
     name = "Тег"
     name_plural = "Теги"
     icon = "fa-solid fa-tags"
+    form_overrides = {
+        "text_color": wtforms.ColorField,
+        "background_color": wtforms.ColorField
+    }
 
 
 class ReviewAdmin(ModelView, model=Review):
@@ -141,15 +151,20 @@ class CouponAdmin(ModelView, model=Coupon):
     name = "Купон"
     name_plural = "Купоны"
     icon = "fa-solid fa-ticket"
+    form_overrides = {
+        "color": wtforms.ColorField
+    }
 
 
 class TariffAdmin(ModelView, model=Tariff):
     column_list = [Tariff.id, Tariff.name, Tariff.for_client, Tariff.for_company]
     form_excluded_columns = [Tariff.created_at, Tariff.updated_at, Tariff.companies, Tariff.subscribed]
-
     name = "Тариф"
     name_plural = "Тарифы"
     icon = "fa-solid fa-flask"
+    form_overrides = {
+        "color": wtforms.ColorField
+    }
 
 
 class SubscribedTariffAdmin(ModelView, model=SubscribedTariff):
@@ -204,10 +219,12 @@ class TransactionAdmin(ModelView, model=Transaction):
 class CompetitionAdmin(ModelView, model=Competition):
     column_list = [Competition.id, Competition.name, Competition.prizes, Competition.quantity_ticket, Competition.date_end]
     form_excluded_columns = [Competition.created_at, Competition.updated_at, Competition.clients, Competition.prizes, Competition.tickets]
-
     name = "Конкурс"
     name_plural = "Конкурсы"
     icon = "fa-solid fa-cubes"
+    form_overrides = {
+        "color": wtforms.ColorField
+    }
 
     async def after_model_change(self, data, model, is_created, request):
         if is_created:
@@ -247,10 +264,12 @@ class PrizeAdmin(ModelView, model=Prize):
 class TicketAdmin(ModelView, model=Ticket):
     column_list = [Ticket.id, Ticket.name, Ticket.client, Ticket.competition, Ticket.activate]
     form_excluded_columns = [Ticket.created_at, Ticket.updated_at]
-
     name = "Билет"
     name_plural = "Билеты"
     icon = "fa-solid fa-credit-card"
+    form_overrides = {
+        "color": wtforms.ColorField
+    }
 
 
 class TaskAdmin(ModelView, model=Task):
