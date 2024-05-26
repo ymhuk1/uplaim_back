@@ -21,7 +21,7 @@ async def save_photo(is_created, form, model, folder, field_photo=None, folder_d
         os.makedirs(directory)
 
     if is_created:
-        print('is_created:', is_created)
+        # print('is_created:', is_created)
         file_path = os.path.join(directory, filename)
     elif model.id:
         current_photo_path = getattr(model, field_photo, None)

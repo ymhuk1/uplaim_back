@@ -94,7 +94,7 @@ async def from_taker_in_holder_balls(holder, taker, taker_company_id, existing_e
 async def from_holder_in_taker_cash_or_up(holder, taker, existing_exchange, session: AsyncSession):
     if existing_exchange.give_cash:
         balance = await get_balance(holder.id)
-        print('balance: ', balance)
+        # print('balance: ', balance)
 
         if balance > existing_exchange.give_cash:
             new_holder_transaction = Transaction(balance=existing_exchange.give_cash, transaction_type='withdraw',

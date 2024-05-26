@@ -440,9 +440,9 @@ class ExchangeRepository:
         async with new_session() as session:
 
             # client = result.scalars().first()
-            print('client_id: ', client_id)
-            print('available: ', available)
-            print('city: ', city)
+            # print('client_id: ', client_id)
+            # print('available: ', available)
+            # print('city: ', city)
 
             result = await session.execute(
                 select(Exchange).where(Exchange.status == 'active', Exchange.taker_id.is_(None)))
@@ -612,8 +612,8 @@ class ExchangeRepository:
     async def update_exchange(cls, exchange_id: int, data: UpdateExchange):
         async with new_session() as session:
 
-            print('exchange_id: ', exchange_id)
-            print('data: ', data)
+            # print('exchange_id: ', exchange_id)
+            # print('data: ', data)
 
             result = await session.execute(select(Exchange).where(Exchange.id == exchange_id))
             existing_exchange = result.scalars().first()
@@ -761,7 +761,7 @@ class ReferralRepository:
                     "tariff_color": person.referred.tariff.color if person.referred.tariff else "Unknown"
                 }
                 serialized_first_level_people.append(person_data)
-            print('serialized_first_level_people: ', serialized_first_level_people)
+            # print('serialized_first_level_people: ', serialized_first_level_people)
 
             for ref in list_referred:
                 level = ref.level

@@ -13,7 +13,6 @@ from models import User, City, Client, Category, Company, News, Tag, Review, Bal
     Notification, Referral, Reward, Exchange, Transaction, Competition, Prize, Ticket, Task, TransactionCompetition, \
     Story, Setting
 from utils.auth_user import get_password_hash, authenticate_user, create_access_token
-from utils.save_photo import save_photo
 
 
 class AdminAuth(AuthenticationBackend):
