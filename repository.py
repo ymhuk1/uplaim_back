@@ -267,7 +267,11 @@ class CompanyRepository:
     async def get_coupons(cls):
         async with new_session() as session:
             result = await session.execute(select(Coupon))
-            return result.scalars().all()
+            coupons = result.scalars().all()
+            for coupon in coupons:
+                coupon.category = coupon.company_category.name
+
+            return coupons
 
 
 class StoryRepository:
