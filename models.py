@@ -199,6 +199,8 @@ class Company(Base):
     dop_photo_4 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
     dop_photo_5 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
 
+    external_links = Column(JSON, nullable=True)
+
     link_1 = Column(String, nullable=True)
     link_2 = Column(String, nullable=True)
     link_3 = Column(String, nullable=True)

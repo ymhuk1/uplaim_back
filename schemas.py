@@ -154,6 +154,7 @@ class CompanyModel(BaseModel):
     category: CategoryModel
     category_id: Optional[int] = None
     another_photo: Optional[list] = []
+    external_links: Optional[dict] = {}
     reviews: List[ReviewModel] = []
     news: List[NewsModel] = []
     coupons: List[CouponModel] = []
