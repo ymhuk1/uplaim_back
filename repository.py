@@ -146,6 +146,21 @@ class ClientRepository:
                 up_balance = await get_up_balance(client.id)
                 client.balance = balance
                 client.up_balance = up_balance
+
+                result = await session.execute(select(Reward).where(Reward.agent_id == client.id))
+                value = result.scalars().first()
+                if value:
+                    total_value = (
+                        await session.execute(func.sum(cast(Reward.amount, Float) / cast(Reward.duration, Float)))
+                        .filter_by(agent_id=client.id)
+                        .scalar()
+                    )
+                else:
+                    total_value = 0
+
+                reward_in_day = total_value
+                client.reward_in_day = reward_in_day
+
                 return {'client': client}
 
             if client:
