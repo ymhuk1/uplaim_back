@@ -193,14 +193,15 @@ class CompanyRepository:
                     if photo_value:
                         company.another_photo.append({"id": i, "photo": photo_value})
 
-                company.external_links = {}
+                company.external_links = []
                 dict_links = {}
                 for i in range(1, 6):
                     link_attr = f'link_{i}'
                     link_value = getattr(company, link_attr, None)
                     if link_value:
                         dict_links[f'link_{i}'] = link_value
-                    company.external_links = dict_links
+                if dict_links:
+                    company.external_links.append(dict_links)
 
                 if reviews_rating:
                     company.reviews_rating = reviews_rating
