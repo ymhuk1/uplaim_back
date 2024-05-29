@@ -65,6 +65,8 @@ class NewsModel(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
+    photo: Optional[str] = None
+    short_description: Optional[str] = None
 
 
 class CouponModel(BaseModel):
