@@ -72,6 +72,14 @@ class NewsModel(BaseModel):
 class CouponModel(BaseModel):
     id:  Optional[int] = None
     description: Optional[str] = None
+    company_id:  Optional[int] = None
+    # company:
+    price: Optional[int] = None
+    name: Optional[str] = None
+    discount: Optional[float] = None
+    link: Optional[str] = None
+    date: Optional[datetime] = None
+    color: Optional[str] = None
 
 
 class CityModel(BaseModel):

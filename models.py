@@ -77,7 +77,7 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     city_id = Column(Integer, ForeignKey('cities.id'), nullable=True)
-    city = relationship("City", lazy="subquery")
+    city = relationship("City")
 
 
 class City(Base):
@@ -149,7 +149,7 @@ class Category(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
-    exchange_categories = relationship('Exchange', secondary="exchange_categories", back_populates="taker_categories", lazy="subquery")
+    exchange_categories = relationship('Exchange', secondary="exchange_categories", back_populates="taker_categories")
 
     def __str__(self):
         return self.name
@@ -212,12 +212,12 @@ class Company(Base):
     balls = relationship("Balls", back_populates="company", lazy="subquery")
     coupons = relationship("Coupon", back_populates="company", lazy="subquery")
 
-    clients = relationship('Client', secondary="company_client_link", back_populates="companies", lazy="subquery")
+    clients = relationship('Client', secondary="company_client_link", back_populates="companies")
     tags = relationship("Tag", secondary="company_tag_link", back_populates="companies", lazy="subquery")
     tariffs = relationship("Tariff", secondary="company_tariff_link", back_populates="companies", lazy="subquery")
 
     holder_company = relationship('Exchange', foreign_keys='Exchange.holder_company_id',
-                                  back_populates='holder_company', lazy="subquery")
+                                  back_populates='holder_company')
     taker_company = relationship('Exchange', foreign_keys='Exchange.taker_company_id', back_populates='taker_company', lazy="subquery")
     exchange_companies = relationship('Exchange', secondary="exchange_companies", back_populates="taker_companies", lazy="subquery")
 
@@ -237,11 +237,11 @@ class News(Base):
     visible = Column(Boolean)
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/news')), nullable=True)
     company_id = Column(Integer, ForeignKey('companies.id'))
-    company = relationship('Company', back_populates='news', lazy="subquery")
+    company = relationship('Company', back_populates='news')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
-    tags = relationship("Tag", back_populates="news", lazy="subquery")
+    tags = relationship("Tag", back_populates="news")
 
     def __str__(self):
         return str(self.name)
@@ -255,9 +255,9 @@ class Tag(Base):
     background_color = Column(String(200))
     for_company = Column(Boolean)
     for_news = Column(Boolean)
-    companies = relationship("Company", secondary="company_tag_link", back_populates="tags", lazy="subquery")
+    companies = relationship("Company", secondary="company_tag_link", back_populates="tags")
     news_id = Column(Integer, ForeignKey('news.id'), nullable=True)
-    news = relationship('News', back_populates='tags', lazy="subquery")
+    news = relationship('News', back_populates='tags')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
@@ -277,10 +277,10 @@ class Review(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     client_id = Column(Integer, ForeignKey('clients.id'))
-    client = relationship("Client", back_populates="reviews", lazy="subquery")
+    client = relationship("Client", back_populates="reviews")
 
     company_id = Column(Integer, ForeignKey('companies.id'))
-    company = relationship("Company", back_populates="reviews", lazy="subquery")
+    company = relationship("Company", back_populates="reviews")
 
     def __str__(self):
         return str(self.rating)
@@ -290,9 +290,9 @@ class Balls(Base):
     __tablename__ = 'balls'
     id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('clients.id'), nullable=True)
-    client = relationship("Client", back_populates="balls", lazy="subquery")
+    client = relationship("Client", back_populates="balls")
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
-    company = relationship("Company", back_populates="balls", lazy="subquery")
+    company = relationship("Company", back_populates="balls")
     ball = Column(Integer)
     hide_ball = Column(Integer)
     main_account = Column(Boolean, default=False)
@@ -348,7 +348,7 @@ class Tariff(Base):
     summ_of_order = Column(String(50))
     summ_witch_friends = Column(String(50))
     reward = Column(String(50))
-    companies = relationship("Company", secondary="company_tariff_link", back_populates="tariffs", lazy="subquery")
+    companies = relationship("Company", secondary="company_tariff_link", back_populates="tariffs")
     subscribed = relationship('SubscribedTariff', back_populates='tariff', lazy="subquery")
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
@@ -376,7 +376,7 @@ class Transaction(Base):
     __tablename__ = 'transactions'
     id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('clients.id'))
-    client = relationship('Client', lazy="subquery")
+    client = relationship('Client')
     balance = Column(Float)
     up_balance = Column(Float)
     transaction_type = Column(String(50))  # deposit, withdraw, change(from admin)
@@ -393,23 +393,23 @@ class Exchange(Base):
     id = Column(Integer, primary_key=True)
 
     holder_id = Column(Integer, ForeignKey('clients.id'))
-    holder = relationship('Client', foreign_keys=[holder_id], back_populates='given_clients', lazy="subquery")
+    holder = relationship('Client', foreign_keys=[holder_id], back_populates='given_clients')
 
     last_holder_id = Column(Integer, ForeignKey('clients.id'))
-    last_holder = relationship('Client', foreign_keys=[last_holder_id], back_populates='given_clients', lazy="subquery")
+    last_holder = relationship('Client', foreign_keys=[last_holder_id], back_populates='given_clients')
 
     taker_id = Column(Integer, ForeignKey('clients.id'), nullable=True)
-    taker = relationship('Client', foreign_keys=[taker_id], back_populates='received_clients', lazy="subquery")
+    taker = relationship('Client', foreign_keys=[taker_id], back_populates='received_clients')
 
     holder_company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
     holder_company = relationship('Company', back_populates='holder_company',
-                                  primaryjoin=holder_company_id == Company.id, lazy="subquery")
+                                  primaryjoin=holder_company_id == Company.id)
 
     taker_company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
-    taker_company = relationship('Company', back_populates='taker_company', primaryjoin=taker_company_id == Company.id, lazy="subquery")
+    taker_company = relationship('Company', back_populates='taker_company', primaryjoin=taker_company_id == Company.id)
 
-    taker_companies = relationship('Company', secondary=exchange_companies, back_populates='exchange_companies', lazy="subquery")
-    taker_categories = relationship('Category', secondary=exchange_categories, back_populates='exchange_categories', lazy="subquery")
+    taker_companies = relationship('Company', secondary=exchange_companies, back_populates='exchange_companies')
+    taker_categories = relationship('Category', secondary=exchange_categories, back_populates='exchange_categories')
 
     counter_deal = Column(Boolean, default=False)  # counteroffer
     type_deal = Column(String(100))  # buy, sell, exchange_sell, exchange
@@ -437,7 +437,7 @@ class Notification(Base):
     description = Column(String(500))
     read = Column(Boolean)
     client_id = Column(Integer, ForeignKey('clients.id'))
-    client = relationship('Client', lazy="subquery")
+    client = relationship('Client')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
@@ -510,9 +510,9 @@ class Competition(Base):
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/competition')))
     date_end = Column(DateTime)
     instant = Column(Boolean, default=False)
-    clients = relationship('Client', secondary="competition_clients", back_populates="competitions", lazy="subquery")
-    prizes = relationship('Prize', back_populates="competition", lazy="subquery")
-    tickets = relationship('Ticket', back_populates="competition", lazy="subquery")
+    clients = relationship('Client', secondary="competition_clients", back_populates="competitions")
+    prizes = relationship('Prize', back_populates="competition")
+    tickets = relationship('Ticket', back_populates="competition")
     color = Column(String)
     quantity_ticket = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow())
@@ -530,7 +530,7 @@ class Prize(Base):
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/prize')))
     count = Column(Integer)
     competition_id = Column(Integer, ForeignKey('competitions.id'))
-    competition = relationship('Competition', lazy="subquery")
+    competition = relationship('Competition')
     client_id = Column(Integer, ForeignKey('clients.id'), nullable=True)
     client = relationship("Client", lazy="subquery")
     created_at = Column(DateTime, default=datetime.utcnow())
@@ -548,7 +548,7 @@ class Ticket(Base):
     client_id = Column(Integer, ForeignKey('clients.id'), nullable=True)
     client = relationship("Client", lazy="subquery")
     competition_id = Column(Integer, ForeignKey('competitions.id'))
-    competition = relationship('Competition', lazy="subquery")
+    competition = relationship('Competition')
     activate = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
@@ -567,7 +567,7 @@ class Task(Base):
     company_id = Column(Integer, ForeignKey('companies.id'))
     company = relationship('Company', lazy="subquery")
     status = Column(String(200))
-    clients = relationship('Client', secondary="client_tasks", back_populates="tasks", lazy="subquery")
+    clients = relationship('Client', secondary="client_tasks", back_populates="tasks")
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
