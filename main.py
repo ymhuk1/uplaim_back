@@ -23,6 +23,10 @@ from router.referral import referral_router
 from router.story import story_router
 from router.tariff import tariff_router
 import sentry_sdk
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+from utils.accrual_of_rewards import process_rewards
 
 sentry_sdk.init(
     dsn="https://ebde623893c3776c1f43e16d99d978f5@o1016854.ingest.us.sentry.io/4507310160740352",
@@ -36,6 +40,17 @@ sentry_sdk.init(
 )
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+# def start_scheduler():
+#     print('1')
+#     scheduler = BackgroundScheduler()
+#     print('2')
+#     trigger = CronTrigger(hour="0", minute="1")  # Настройте расписание по необходимости
+#     print('3')
+#     scheduler.add_job(lambda: process_rewards(), trigger)
+#     print('4')
+#     scheduler.start()
 
 
 app = FastAPI()
@@ -85,3 +100,7 @@ admin.add_view(TransactionCompetitionAdmin)
 admin.add_view(StoryAdmin)
 admin.add_view(SettingAdmin)
 
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

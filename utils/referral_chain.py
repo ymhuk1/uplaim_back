@@ -1,13 +1,14 @@
 from sqlalchemy import select
 
 from models import Referral, Client
-# from utils.notifications import notify
+from utils.notifications import notify
 
 
 async def process_referral(referral_code, new_client, session):
     result = await session.execute(select(Client).where(Client.referral_link == referral_code))
     referrer = result.scalars().first()
-    # notify(referrer, 'referral', 'Новый друг', 'Присоединился реферал вашего 1-го уровня')
+
+    await notify(referrer, 'referral', 'Новый друг', 'Присоединился реферал вашего 1-го уровня')
 
     if referrer:
         await create_referral_chain(referrer, new_client, levels=5, session=session)

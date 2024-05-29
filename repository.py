@@ -23,6 +23,7 @@ from utils.calculate_reward import calculate_reward
 from utils.exchange_utils import has_enough_balls_in_company, has_enough_cash, has_enough_saveup, \
     from_taker_in_holder_balls, from_holder_in_taker_cash_or_up, from_holder_in_taker_balls, \
     from_taker_in_holder_cash_or_up
+from utils.notifications import notify
 from utils.referral_chain import process_referral
 from utils.transactions import get_balance, get_up_balance
 
@@ -42,7 +43,7 @@ class ClientRepository:
         async with new_session() as session:
             phone = client.phone
             device = client.device
-            referral_code = client.referral_link
+            referral_code = client.referral_code
             token_data = {'device': device, 'phone': phone}
             token = jwt.encode(token_data, TOKEN, algorithm='HS256')
 
@@ -710,6 +711,8 @@ class ExchangeRepository:
             else:
                 return {"error": "Не указан тип сделки"}
 
+            await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта')
+
             return {"exchange": existing_exchange}
 
     @classmethod
@@ -845,9 +848,9 @@ class NotificationsRepository:
                 result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
                 notifications = result.scalars().all()
 
-                for notify in notifications:
-                    if notify.type == data.type_notify and notify.created_on.date() == created_on_datetime.date():
-                        notify.read = True
+                for notification in notifications:
+                    if notification.type == data.type_notify and notification.created_on.date() == created_on_datetime.date():
+                        notification.read = True
                         await session.commit()
 
             # ---//---
@@ -855,14 +858,14 @@ class NotificationsRepository:
                 result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
                 notification = result.scalars().all()
 
-                for notify in notification:
-                    notify.read = False
+                for notification_one in notification:
+                    notification_one.read = False
                     await session.commit()
             # ---//---
             result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
-            notify = result.scalars().all()
+            notification = result.scalars().all()
 
-            return {"notifications": notify}
+            return {"notifications": notification}
 
 
 class CompetitionRepository:
