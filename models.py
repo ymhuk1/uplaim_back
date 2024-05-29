@@ -471,7 +471,7 @@ class Reward(Base):
     tariff_id = Column(Integer, ForeignKey('tariffs.id'))
     tariff = relationship('Tariff', foreign_keys=[tariff_id], lazy="subquery")
     duration = Column(Integer)
-    amount = Column(Integer)
+    amount = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 

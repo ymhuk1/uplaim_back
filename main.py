@@ -1,5 +1,7 @@
+import asyncio
 import os
 
+import schedule
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 
@@ -23,10 +25,8 @@ from router.referral import referral_router
 from router.story import story_router
 from router.tariff import tariff_router
 import sentry_sdk
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 
-from utils.accrual_of_rewards import process_rewards
+from utils.sheduler import run_scheduler, stop_scheduler
 
 sentry_sdk.init(
     dsn="https://ebde623893c3776c1f43e16d99d978f5@o1016854.ingest.us.sentry.io/4507310160740352",
@@ -40,18 +40,7 @@ sentry_sdk.init(
 )
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-
-# def start_scheduler():
-#     print('1')
-#     scheduler = BackgroundScheduler()
-#     print('2')
-#     trigger = CronTrigger(hour="0", minute="1")  # Настройте расписание по необходимости
-#     print('3')
-#     scheduler.add_job(lambda: process_rewards(), trigger)
-#     print('4')
-#     scheduler.start()
-
+print('test')
 
 app = FastAPI()
 
@@ -101,6 +90,22 @@ admin.add_view(StoryAdmin)
 admin.add_view(SettingAdmin)
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+@app.on_event("startup")
+async def startup_event():
+    global scheduler_task
+    scheduler_task = asyncio.create_task(run_scheduler())
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    global scheduler_task
+    stop_scheduler()
+    scheduler_task.cancel()
+    try:
+        await scheduler_task
+    except asyncio.CancelledError:
+        print("Scheduler task cancelled on shutdown")
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

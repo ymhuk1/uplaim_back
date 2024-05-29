@@ -326,6 +326,7 @@ class TariffRepository:
             result = await session.execute(
                 select(SubscribedTariff).where(SubscribedTariff.id == data.subscribed_tariff_id))
             subscribed_tariff = result.scalars().first()
+
             if not client or not tariff or not subscribed_tariff:
                 return None
 
@@ -345,21 +346,25 @@ class TariffRepository:
 
                 for _ in range(5):
 
-                    amount_reward = tariff.price * ((int(client.tariff.reward) / 100) / reward_percentage)
+                    amount_reward = subscribed_tariff.price * ((int(client.tariff.reward) / 100) / reward_percentage)
 
                     if amount_reward:
-                        new_reward = Reward(client=current_referral_client, agent=current_referral_agent, tariff=tariff,
-                                            amount=amount_reward, duration=subscribed_tariff.duration)
-                        await session.add(new_reward)
-                    await session.commit()
 
-                    current_referral = Referral.query.filter_by(referred=current_referral_agent, level='1').first()
+                        new_reward = Reward(client=current_referral_client, agent=current_referral_agent, tariff=tariff,
+                                            amount=amount_reward, duration=int(subscribed_tariff.duration))
+                        session.add(new_reward)
+
+                    # await session.commit()
+
+                    result = await session.execute(select(Referral).where(Referral.referred == current_referral_agent, Referral.level == '1'))
+                    current_referral = result.scalars().first()
                     if current_referral:
                         current_referral_client = current_referral_agent
                         current_referral_agent = current_referral.referrer
                         reward_percentage *= 2
                     else:
                         break
+                break
 
             await session.commit()
             await session.close()
