@@ -175,6 +175,8 @@ class ClientRepository:
             client = result.scalars().first()
             if client:
                 companies = client.companies
+                for company in companies:
+                    company.external_links = []
             if companies:
                 return companies
             else:
@@ -325,7 +327,11 @@ class CategoryRepository:
     async def get_company_categories(cls, data: CategoryCompanies) -> list[CompanyModel] | None:
         async with new_session() as session:
             result = await session.execute(select(Company).where(Company.category_id == data.category_id))
-            return result.scalars().all()
+            companies = result.scalars().all()
+            for company in companies:
+                company.external_links = []
+                company.another_photo = []
+            return companies
 
 
 class TariffRepository:

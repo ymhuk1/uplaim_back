@@ -5,8 +5,9 @@ from sqlalchemy.orm import declarative_base, relationship
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
 
-from config import STATIC_FOLDER
-
+from config import STATIC_FOLDER, STATIC_FOLDER_CATEGORIES, STATIC_FOLDER_COMPANIES_MAIN, \
+    STATIC_FOLDER_COMPANIES_ANOTHER, STATIC_FOLDER_NEWS, STATIC_FOLDER_TARIFFS, STATIC_FOLDER_STORIES_PHOTO, \
+    STATIC_FOLDER_STORIES_ICON, STATIC_FOLDER_COMPETITIONS, STATIC_FOLDER_PRIZES, STATIC_FOLDER_TASKS
 
 storage = FileSystemStorage(path=STATIC_FOLDER + '/img')
 
@@ -144,7 +145,7 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
-    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/category')), nullable=True)
+    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_CATEGORIES)), nullable=True)
     color = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
@@ -179,7 +180,7 @@ class Company(Base):
     visible = Column(Boolean, default=True)
     color = Column(String, nullable=True)
     welcome_balls = Column(String, nullable=True)
-    main_photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/main_photo')), nullable=True)
+    main_photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_MAIN)), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
@@ -193,13 +194,13 @@ class Company(Base):
     # user = relationship("User")
     another_photo = Column(JSON, nullable=True)
 
-    dop_photo_1 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
-    dop_photo_2 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
-    dop_photo_3 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
-    dop_photo_4 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
-    dop_photo_5 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/company' + '/another_photo')), nullable=True)
+    dop_photo_1 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_ANOTHER)), nullable=True)
+    dop_photo_2 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_ANOTHER)), nullable=True)
+    dop_photo_3 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_ANOTHER)), nullable=True)
+    dop_photo_4 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_ANOTHER)), nullable=True)
+    dop_photo_5 = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPANIES_ANOTHER)), nullable=True)
 
-    external_links = Column(JSON, nullable=True)
+    external_links = Column(JSON, nullable=True, default=[])
 
     link_1 = Column(String, nullable=True)
     link_2 = Column(String, nullable=True)
@@ -235,7 +236,7 @@ class News(Base):
     description = Column(String)
     link = Column(String)
     visible = Column(Boolean)
-    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/news')), nullable=True)
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_NEWS)), nullable=True)
     company_id = Column(Integer, ForeignKey('companies.id'))
     company = relationship('Company', back_populates='news')
     created_at = Column(DateTime, default=datetime.utcnow())
@@ -337,7 +338,7 @@ class Tariff(Base):
     check_list = Column(String(1000))
     check_list_two = Column(String(1000))
     visible = Column(Boolean)
-    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/tariff')))
+    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_TARIFFS)))
     main = Column(Boolean)
     for_client = Column(Boolean)
     for_company = Column(Boolean)
@@ -483,11 +484,11 @@ class Story(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
     description = Column(String(200))
-    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/story' + '/photo')))
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_STORIES_PHOTO)))
     link = Column(String(200))
     visible = Column(Boolean)
     show_in_search = Column(Boolean)
-    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/story' + '/icon')))
+    icon = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_STORIES_ICON)))
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
@@ -507,7 +508,7 @@ class Competition(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
     description = Column(String(200))
-    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/competition')))
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPETITIONS)))
     date_end = Column(DateTime)
     instant = Column(Boolean, default=False)
     clients = relationship('Client', secondary="competition_clients", back_populates="competitions")
@@ -527,7 +528,7 @@ class Prize(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
     description = Column(String(200))
-    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/prize')))
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_PRIZES)))
     count = Column(Integer)
     competition_id = Column(Integer, ForeignKey('competitions.id'))
     competition = relationship('Competition')
@@ -560,7 +561,7 @@ class Task(Base):
     name = Column(String(200))
     short_description = Column(String)
     description = Column(String(1000))
-    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER + '/img' + '/task')))
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_TASKS)))
     reward_type = Column(String(200))
     reward = Column(String(200))
     date_end = Column(DateTime)
