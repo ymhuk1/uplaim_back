@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Table, Float, JSON
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Table, Float, JSON, Date
 from sqlalchemy.orm import declarative_base, relationship
 from fastapi_storages import FileSystemStorage
 from fastapi_storages.integrations.sqlalchemy import FileType
@@ -509,10 +509,10 @@ class Competition(Base):
     name = Column(String(200))
     description = Column(String(200))
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_COMPETITIONS)))
-    date_end = Column(DateTime)
+    date_end = Column(Date)
     instant = Column(Boolean, default=False)
     clients = relationship('Client', secondary="competition_clients", back_populates="competitions")
-    prizes = relationship('Prize', back_populates="competition")
+    prizes = relationship('Prize', back_populates="competition", lazy='subquery')
     tickets = relationship('Ticket', back_populates="competition")
     color = Column(String)
     quantity_ticket = Column(Integer)

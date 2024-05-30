@@ -366,6 +366,9 @@ class TariffRepository:
                 return None
 
             client.tariff = tariff
+            # print('client: ', client)
+            # print('tariff: ', tariff)
+
             client.tariff_start = datetime.today()
             client.tariff_end = client.tariff_start + timedelta(int(subscribed_tariff.duration))
             client.tariff_day = subscribed_tariff.duration

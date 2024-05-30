@@ -4,14 +4,16 @@ import aioschedule as schedule
 
 from db import new_session
 from utils.accrual_of_rewards import process_rewards
+from utils.competition import end_of_competition
 
 
-async def job(message='stuff'):
-    await process_rewards()
+async def job():
+    # await process_rewards()
+    await end_of_competition()
 
 
 # schedule.every(10).seconds.do(job)
-schedule.every().day.at("19:21").do(job)
+# schedule.every().day.at("19:21").do(job)
 
 
 async def run_scheduler():
