@@ -21,6 +21,7 @@ from router.client import client_router
 from router.competition import competition_router
 from router.exchange import exchange_router
 from router.notification import notify_router
+from router.redirect_referral import redirect_router
 from router.referral import referral_router
 from router.story import story_router
 from router.tariff import tariff_router
@@ -56,6 +57,7 @@ app.include_router(exchange_router)
 app.include_router(referral_router)
 app.include_router(notify_router)
 app.include_router(competition_router)
+app.include_router(redirect_router)
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

@@ -8,12 +8,12 @@ from utils.competition import end_of_competition
 
 
 async def job():
-    # await process_rewards()
+    await process_rewards()
     await end_of_competition()
 
 
 # schedule.every(10).seconds.do(job)
-# schedule.every().day.at("19:21").do(job)
+schedule.every().day.at("00:00").do(job)
 
 
 async def run_scheduler():
