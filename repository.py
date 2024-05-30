@@ -188,7 +188,11 @@ class CompanyRepository:
     async def get_all_companies(cls):
         async with new_session() as session:
             result = await session.execute(select(Company).options(joinedload(Company.category)))
-            return result.scalars().all()
+            companies = result.scalars().all()
+            for company in companies:
+                company.external_links = []
+                company.another_photo = []
+            return companies
 
     @classmethod
     async def get_company(cls, company_id: int, token: Optional[str]) -> CompanyModel | None:
