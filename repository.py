@@ -231,6 +231,7 @@ class CompanyRepository:
                     client = await session.execute(select(Client).where(Client.token == token))
                     client = client.scalars().first()
                     if client:
+
                         tariff = client.tariff
                         company.max_pay_point = await calculate_max_balls(tariff, company, session)
                         company.cashback = await calculate_cashback(tariff, company, session)

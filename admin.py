@@ -93,8 +93,8 @@ class CategoryAdmin(ModelView, model=Category):
 
 class CompanyAdmin(ModelView, model=Company):
     column_list = [Company.id, Company.name, Company.category, Company.news]
-    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls, Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies, Company.reviews_rating, Company.holder_company, Company.another_photo]
-    column_details_exclude_list = [Company.category_id, Company.another_photo, Company.external_links]
+    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls, Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies, Company.reviews_rating, Company.holder_company, Company.another_photo, Company.cashback, Company.max_pay_point]
+    column_details_exclude_list = [Company.category_id, Company.another_photo, Company.external_links, Company.cashback, Company.max_pay_point]
     name = "Компания"
     name_plural = "Компании"
     icon = "fa-solid fa-vcard"

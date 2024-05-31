@@ -12,8 +12,8 @@ async def calculate_max_balls(tariff, company, session):
     else:
         return None
 
-    if company.max_pay_point:
-        max_pay_point = int(company.max_pay_point)
+    if company.max_pay_point_company:
+        max_pay_point = int(company.max_pay_point_company)
     else:
         max_pay_point = 0
 

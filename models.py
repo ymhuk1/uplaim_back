@@ -177,6 +177,8 @@ class Company(Base):
     discount_size = Column(String, nullable=True)
     max_pay_point = Column(JSON, nullable=True)
     cashback = Column(JSON, nullable=True)
+    max_pay_point_company = Column(String, nullable=True)
+    cashback_company = Column(String, nullable=True)
     visible = Column(Boolean, default=True)
     color = Column(String, nullable=True)
     welcome_balls = Column(String, nullable=True)

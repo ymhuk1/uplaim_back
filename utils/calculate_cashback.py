@@ -12,8 +12,8 @@ async def calculate_cashback(tariff, company, session):
     else:
         return None
 
-    if company.cashback:
-        cashback = int(company.cashback)
+    if company.cashback_company:
+        cashback = int(company.cashback_company)
     else:
         cashback = 0
 
