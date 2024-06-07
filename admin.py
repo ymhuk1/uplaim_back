@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 from db import new_session
 from models import User, City, Client, Category, Company, News, Tag, Review, Balls, Coupon, Tariff, SubscribedTariff, \
     Notification, Referral, Reward, Exchange, Transaction, Competition, Prize, Ticket, Task, TransactionCompetition, \
-    Story, Setting
+    Story, Setting, Question
 from utils.auth_user import get_password_hash, authenticate_user, create_access_token
 
 
@@ -297,6 +297,15 @@ class StoryAdmin(ModelView, model=Story):
     name = "Истории"
     name_plural = "Истории"
     icon = "fa-solid fa-archive"
+
+
+class QuestionAdmin(ModelView, model=Question):
+    column_list = [Question.id, Question.place, Question.question, Question.answer]
+    form_excluded_columns = [Question.created_at, Question.updated_at]
+
+    name = "Вопрос"
+    name_plural = "Вопросы"
+    icon = "fa-solid fa-question-circle"
 
 
 class SettingAdmin(ModelView, model=Setting):
