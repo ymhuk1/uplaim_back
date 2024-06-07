@@ -15,7 +15,7 @@ from db import new_session
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
     CompanyModel, ReviewCreate, ReviewCreateMessage, ClientOut, CategoryCompanies, \
     GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, \
-    AssociateCompany, UpdateExchange, NotifyData
+    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
@@ -182,6 +182,27 @@ class ClientRepository:
             else:
                 return None
 
+    @classmethod
+    async def edit_client(cls, data: ClientEditDataIn, authorization: str):
+        async with new_session() as session:
+            print('authorization: ', authorization)
+            result = await session.execute(select(Client).where(Client.token == authorization))
+            client = result.scalars().first()
+            print('client: ', client)
+
+            if client:
+                if data.name: client.name = data.name
+                if data.last_name: client.last_name = data.last_name
+                if data.phone: client.phone = data.phone
+                if data.email: client.email = data.email
+                if data.gender: client.gender = data.gender
+                if data.date_of_birth: client.date_of_birth = data.date_of_birth
+                await session.commit()
+                return client
+            else:
+                return None
+
+
 
 class CompanyRepository:
     @classmethod
@@ -231,7 +252,6 @@ class CompanyRepository:
                     client = await session.execute(select(Client).where(Client.token == token))
                     client = client.scalars().first()
                     if client:
-
                         tariff = client.tariff
                         company.max_pay_point = await calculate_max_balls(tariff, company, session)
                         company.cashback = await calculate_cashback(tariff, company, session)
@@ -388,14 +408,14 @@ class TariffRepository:
                     amount_reward = subscribed_tariff.price * ((int(client.tariff.reward) / 100) / reward_percentage)
 
                     if amount_reward:
-
                         new_reward = Reward(client=current_referral_client, agent=current_referral_agent, tariff=tariff,
                                             amount=amount_reward, duration=int(subscribed_tariff.duration))
                         session.add(new_reward)
 
                     # await session.commit()
 
-                    result = await session.execute(select(Referral).where(Referral.referred == current_referral_agent, Referral.level == '1'))
+                    result = await session.execute(
+                        select(Referral).where(Referral.referred == current_referral_agent, Referral.level == '1'))
                     current_referral = result.scalars().first()
                     if current_referral:
                         current_referral_client = current_referral_agent
@@ -804,7 +824,6 @@ class ReferralRepository:
             serialized_first_level_people = []
 
             for person in first_level_people:
-
                 person_data = {
                     "name": person.referred.name,
                     "surname": person.referred.last_name,

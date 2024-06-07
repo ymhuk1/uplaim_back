@@ -3,7 +3,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Header
 
 from repository import ClientRepository
-from schemas import ClientIn, ClientOut, CompanyModel
+from schemas import ClientIn, ClientOut, CompanyModel, ClientEditDataIn
 
 client_router = APIRouter(
     prefix="/api",
@@ -27,3 +27,12 @@ async def get_client_companies(authorization: str = Header(alias="authorization"
     if not my_companies:
         raise HTTPException(status_code=404, detail="No companies found")
     return my_companies
+
+
+@client_router.post("/edit_client")
+async def edit_client(data: ClientEditDataIn, authorization: str = Header(alias="authorization")):
+    client = await ClientRepository.edit_client(data, authorization)
+
+    if not client:
+        raise HTTPException(status_code=404, detail="No client found")
+    return client

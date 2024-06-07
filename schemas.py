@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
 
@@ -26,6 +26,15 @@ class VerifySMSDataIn(BaseModel):
 
 class VerifySMSDataOut(BaseModel):
     message: str
+
+
+class ClientEditDataIn(BaseModel):
+    name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
 
 
 class PasswordData(BaseModel):

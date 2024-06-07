@@ -7,7 +7,8 @@ from fastapi_storages.integrations.sqlalchemy import FileType
 
 from config import STATIC_FOLDER, STATIC_FOLDER_CATEGORIES, STATIC_FOLDER_COMPANIES_MAIN, \
     STATIC_FOLDER_COMPANIES_ANOTHER, STATIC_FOLDER_NEWS, STATIC_FOLDER_TARIFFS, STATIC_FOLDER_STORIES_PHOTO, \
-    STATIC_FOLDER_STORIES_ICON, STATIC_FOLDER_COMPETITIONS, STATIC_FOLDER_PRIZES, STATIC_FOLDER_TASKS
+    STATIC_FOLDER_STORIES_ICON, STATIC_FOLDER_COMPETITIONS, STATIC_FOLDER_PRIZES, STATIC_FOLDER_TASKS, \
+    STATIC_FOLDER_CLIENTS
 
 storage = FileSystemStorage(path=STATIC_FOLDER + '/img')
 
@@ -107,6 +108,9 @@ class Client(Base):
     referral_link = Column(String, nullable=True)
     device = Column(String, nullable=True)
     token = Column(String, nullable=True)
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_CLIENTS)), nullable=True)
+    gender = Column(String, nullable=True)
+    date_of_birth = Column(Date, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
