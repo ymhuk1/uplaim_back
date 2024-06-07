@@ -185,10 +185,11 @@ class ClientRepository:
     @classmethod
     async def edit_client(cls, data: ClientEditDataIn, authorization: str):
         async with new_session() as session:
-            print('authorization: ', authorization)
             result = await session.execute(select(Client).where(Client.token == authorization))
             client = result.scalars().first()
-            print('client: ', client)
+
+            result = await session.execute(select(City).where(City.name == data.city))
+            city = result.scalars().first()
 
             if client:
                 if data.name: client.name = data.name
@@ -197,11 +198,11 @@ class ClientRepository:
                 if data.email: client.email = data.email
                 if data.gender: client.gender = data.gender
                 if data.date_of_birth: client.date_of_birth = data.date_of_birth
+                if data.city and city: client.city = city
                 await session.commit()
                 return client
             else:
                 return None
-
 
 
 class CompanyRepository:

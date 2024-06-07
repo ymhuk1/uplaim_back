@@ -34,6 +34,7 @@ class ClientEditDataIn(BaseModel):
     phone: Optional[str] = None
     email: Optional[str] = None
     gender: Optional[str] = None
+    city: Optional[str] = None
     date_of_birth: Optional[date] = None
 
 
