@@ -139,6 +139,7 @@ class Client(Base):
 
     competitions = relationship('Competition', secondary="competition_clients", back_populates="clients", lazy="subquery")
     tasks = relationship('Task', secondary="client_tasks", back_populates="clients", lazy="subquery")
+    coupons = relationship("Coupon", back_populates="client", lazy="subquery")
 
     def __str__(self):
         return str(self.phone)
@@ -316,6 +317,8 @@ class Coupon(Base):
     id = Column(Integer, primary_key=True)
     company_id = Column(Integer, ForeignKey('companies.id'))
     company = relationship("Company", back_populates='coupons', lazy='subquery')
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client", back_populates='coupons', lazy='subquery')
     price = Column(Integer)
     name = Column(String)
     description = Column(String)

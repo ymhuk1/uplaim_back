@@ -10,7 +10,8 @@ from sqlalchemy import select, func, Row, RowMapping, cast, Float
 from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
-    Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question
+    Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
+    Transaction
 from db import new_session
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
     CompanyModel, ReviewCreate, ReviewCreateMessage, ClientOut, CategoryCompanies, \
@@ -320,12 +321,40 @@ class CompanyRepository:
     @classmethod
     async def get_coupons(cls):
         async with new_session() as session:
-            result = await session.execute(select(Coupon))
+            result = await session.execute(select(Coupon).where(Coupon.client == None))
             coupons = result.scalars().all()
             for coupon in coupons:
                 coupon.category = coupon.company_category.name
 
             return coupons
+
+    @classmethod
+    async def add_coupon(cls, coupon_id: int, authorization: str):
+        async with new_session() as session:
+            result = await session.execute(select(Client).where(Client.token == authorization))
+            client = result.scalars().first()
+            result = await session.execute(select(Coupon).where(Coupon.id == coupon_id))
+            coupon = result.scalars().first()
+            balance = await get_up_balance(client.id)
+
+            if not client and not coupon:
+                return None
+
+            if coupon.price:
+                if balance > coupon.price:
+                    coupon.client = client
+                    new_transaction = Transaction(client=client, balance=0, up_balance=coupon.price,
+                                                  transaction_type='withdraw', status='success')
+                    session.add(new_transaction)
+                    await notify(client, 'coupon', f'Вы приобрели купон за {coupon.price} Up')
+
+                else:
+                    return {"message": "У вас не хватает UP"}
+            else:
+                coupon.client = client
+            await session.commit()
+
+            return {"message": "Вы успешно приобрели купон"}
 
 
 class StoryRepository:

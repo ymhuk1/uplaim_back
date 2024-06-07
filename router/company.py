@@ -64,3 +64,12 @@ async def get_coupons():
     if not coupons:
         raise HTTPException(status_code=404, detail="No coupons found")
     return coupons
+
+
+@company_router.post("/add_coupon/{coupon_id}")
+async def add_coupon(coupon_id: int, authorization: str = Header(alias="authorization")):
+    coupon = await CompanyRepository.add_coupon(coupon_id, authorization)
+
+    if not coupon:
+        raise HTTPException(status_code=404, detail="No coupons found")
+    return coupon
