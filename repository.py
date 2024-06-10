@@ -972,11 +972,37 @@ class CompetitionRepository:
     @classmethod
     async def all_prizes(cls):
         async with new_session() as session:
-            result = await session.execute(select(Prize).join(Prize.competition)
-                                           .where(Competition.date_end > datetime.utcnow())
-                                           .options(joinedload(Prize.competition)))
-            prizes = result.scalars().all()
-            return prizes
+            current_date = datetime.utcnow()
+
+            # Perform an outer join to include competitions without prizes and filter by date_end
+            result = await session.execute(
+                select(Competition, Prize)
+                .outerjoin(Prize, Prize.competition_id == Competition.id)
+                .where(Competition.date_end > current_date)
+                .options(joinedload(Prize.competition))
+            )
+
+            competitions_dict = {}
+            for competition, prize in result:
+                if competition.id not in competitions_dict:
+                    competitions_dict[competition.id] = {
+                        "name_competition": competition.name,
+                        "date_end": competition.date_end,
+                        "color": competition.color,
+                        "prizes": []
+                    }
+                if prize:
+                    competitions_dict[competition.id]["prizes"].append({
+                        "id": prize.id,
+                        "name": prize.name,
+                        "description": prize.description,
+                        "created_at": prize.created_at,
+                        "updated_at": prize.updated_at
+                    })
+
+            competitions_list = list(competitions_dict.values())
+
+            return competitions_list
 
     @classmethod
     async def my_tickets(cls, client_id: int):
