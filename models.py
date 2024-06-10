@@ -318,7 +318,7 @@ class Coupon(Base):
     company_id = Column(Integer, ForeignKey('companies.id'))
     company = relationship("Company", back_populates='coupons', lazy='subquery')
     client_id = Column(Integer, ForeignKey('clients.id'))
-    client = relationship("Client", back_populates='coupons', lazy='subquery')
+    client = relationship("Client", back_populates='coupons')
     price = Column(Integer)
     name = Column(String)
     description = Column(String)
