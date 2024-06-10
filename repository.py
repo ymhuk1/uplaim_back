@@ -6,7 +6,7 @@ import string
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple, List
 
-from sqlalchemy import select, func, Row, RowMapping, cast, Float
+from sqlalchemy import select, func, Row, RowMapping, cast, Float, and_
 from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
@@ -981,30 +981,33 @@ class CompetitionRepository:
     @classmethod
     async def my_tickets(cls, client_id: int):
         async with new_session() as session:
+            current_date = datetime.now()
+
+            # Perform an outer join to include competitions without tickets
             result = await session.execute(
-                select(Ticket)
-                .join(Ticket.client)
-                .where(Client.id == client_id)
+                select(Competition, Ticket)
+                .outerjoin(Ticket, and_(Ticket.client_id == client_id, Ticket.competition_id == Competition.id))
+                .where(Competition.date_end > current_date)
                 .options(joinedload(Ticket.competition))
             )
-            tickets = result.scalars().all()
 
             competitions_dict = {}
-            for ticket in tickets:
-                competition = ticket.competition
+            for competition, ticket in result:
                 if competition.id not in competitions_dict:
                     competitions_dict[competition.id] = {
                         "name_competition": competition.name,
                         "date_end": competition.date_end,
+                        "color": competition.color,
                         "tickets": []
                     }
-                competitions_dict[competition.id]["tickets"].append({
-                    "id": ticket.id,
-                    "name": ticket.name,
-                    "color": ticket.color,
-                    "created_at": ticket.created_at,
-                    "updated_at": ticket.updated_at
-                })
+                if ticket:
+                    competitions_dict[competition.id]["tickets"].append({
+                        "id": ticket.id,
+                        "name": ticket.name,
+                        "color": ticket.color,
+                        "created_at": ticket.created_at,
+                        "updated_at": ticket.updated_at
+                    })
 
             competitions_list = list(competitions_dict.values())
 
