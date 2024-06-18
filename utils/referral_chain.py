@@ -2,6 +2,7 @@ from sqlalchemy import select
 
 from models import Referral, Client
 from utils.notifications import notify
+from utils.tasks import check_tasks
 
 
 async def process_referral(referral_code, new_client, session):
@@ -9,6 +10,7 @@ async def process_referral(referral_code, new_client, session):
     referrer = result.scalars().first()
 
     await notify(referrer, 'referral', 'Новый друг', 'Присоединился реферал вашего 1-го уровня')
+    await check_tasks(session, 'invite', client=referrer)
 
     if referrer:
         await create_referral_chain(referrer, new_client, levels=5, session=session)

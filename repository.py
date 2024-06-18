@@ -79,6 +79,7 @@ class ClientRepository:
 
                 if referral_code:
                     await process_referral(referral_code, new_client, session)
+
             else:
                 client.token = token
                 client.sms_code = sms_code
@@ -810,6 +811,7 @@ class ExchangeRepository:
                 return {"error": "Не указан тип сделки"}
 
             await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта')
+            await check_tasks(session, 'exchange', client=taker)
 
             return {"exchange": existing_exchange}
 
