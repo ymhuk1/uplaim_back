@@ -50,6 +50,15 @@ class UserAdmin(ModelView, model=User):
             "order_by": City.id,
         }
     }
+    form_overrides = {
+        "type": wtforms.SelectField,
+    }
+    form_args = {
+        "type": {
+            "label": "Type",
+            "choices": [('admin', 'Администратор'), ('franchise', 'Франшиза')]
+        },
+    }
 
     async def on_model_change(self, form, model, is_created, request):
         password = form.get('password')
@@ -77,6 +86,15 @@ class ClientAdmin(ModelView, model=Client):
             "fields": ("name", "id"),
             "order_by": Company.id,
         }
+    }
+    form_overrides = {
+        "gender": wtforms.SelectField,
+    }
+    form_args = {
+        "gender": {
+            "label": "Gender",
+            "choices": [('man', 'Мужчина'), ('woman', 'Женщина')]
+        },
     }
 
 
@@ -135,6 +153,15 @@ class ReviewAdmin(ModelView, model=Review):
     name = "Отзыв"
     name_plural = "Отзывы"
     icon = "fa-solid fa-commenting"
+    form_overrides = {
+        "rating": wtforms.SelectField,
+    }
+    form_args = {
+        "rating": {
+            "label": "Rating",
+            "choices": [(1, '1'), (2, '2'), (3, '3'), (4, '4'),(5, '5')]
+        },
+    }
 
 
 class BallsAdmin(ModelView, model=Balls):
@@ -190,6 +217,15 @@ class ReferralAdmin(ModelView, model=Referral):
     name = "Реферал"
     name_plural = "Рефералы"
     icon = "fa-solid fa-user-plus"
+    form_overrides = {
+        "level": wtforms.SelectField,
+    }
+    form_args = {
+        "level": {
+            "label": "Level",
+            "choices": [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')]
+        },
+    }
 
 
 class RewardAdmin(ModelView, model=Reward):
@@ -206,6 +242,21 @@ class ExchangeAdmin(ModelView, model=Exchange):
     name = "Сделка"
     name_plural = "Сделки"
     icon = "fa-solid fa-exchange"
+    form_overrides = {
+        "type_deal": wtforms.SelectField,
+        "status": wtforms.SelectField,
+    }
+    form_args = {
+        "type_deal": {
+            "label": "Type deal",
+            "choices": [('buy', 'Купить'), ('exchange', 'Обменять'), ('exchange_sell', 'Обменять/продать'), ('sell', 'Продать')]
+        },
+        "status": {
+            "label": "Status",
+            "choices": [('active', 'Активная'), ('draft', 'Черновик'), ('completed', 'Выполненная'),
+                        ('hide', 'Скрытая'), ('canceled', 'Отмененная')]
+        },
+    }
 
 
 class TransactionAdmin(ModelView, model=Transaction):
@@ -214,6 +265,20 @@ class TransactionAdmin(ModelView, model=Transaction):
     name = "Транзакция"
     name_plural = "Транзакции"
     icon = "fa-solid fa-random"
+    form_overrides = {
+        "transaction_type": wtforms.SelectField,
+        "status": wtforms.SelectField,
+    }
+    form_args = {
+        "transaction_type": {
+            "label": "Transaction type",
+            "choices": [('deposit', 'Пополнение'), ('withdraw', 'Снятие')]
+        },
+        "status": {
+            "label": "Status",
+            "choices": [('success', 'Успешно'), ('fail', 'Ошибка'), ('hold', 'Заморожено')]
+        },
+    }
 
 
 class CompetitionAdmin(ModelView, model=Competition):
@@ -275,7 +340,26 @@ class TicketAdmin(ModelView, model=Ticket):
 class TaskAdmin(ModelView, model=Task):
     column_list = [Task.id, Task.name, Task.date_end]
     form_excluded_columns = [Ticket.created_at, Ticket.updated_at, Task.clients]
+    form_overrides = {
+        "reward_type": wtforms.SelectField,
+        "type": wtforms.SelectField,
+        "status": wtforms.SelectField,
 
+    }
+    form_args = {
+        "reward_type": {
+            "label": "Reward Type",
+            "choices": [('rub', 'Руб'), ('up', 'Up')]
+        },
+        "type": {
+            "label": "Task Type",
+            "choices": [('join', 'Присоединение'), ('buy', 'Покупка'), ('invite', 'Приглашение'), ('login', 'Вход'), ('exchange', 'Сделка'), ('tariff', 'Тариф'),]
+        },
+        "status": {
+            "label": "Status",
+            "choices": [('activate', 'Активная'), ('deactivate', 'Неактивная')]
+        }
+    }
     name = "Задание"
     name_plural = "Задания"
     icon = "fa-solid fa-tasks"

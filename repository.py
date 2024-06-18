@@ -4,17 +4,18 @@ import random
 import string
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Optional, List
 
-from sqlalchemy import select, func, Row, RowMapping, cast, Float, and_
+from sqlalchemy import select, func, cast, Float, and_
 from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
     Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
     Transaction
 from db import new_session
+from utils.tasks import check_tasks
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
-    CompanyModel, ReviewCreate, ReviewCreateMessage, ClientOut, CategoryCompanies, \
+    CompanyModel, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
     GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, \
     AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn
 
@@ -114,14 +115,14 @@ class ClientRepository:
             password_hash = hashlib.sha256(data.password.encode()).hexdigest()
             result = await session.execute(select(Client).filter_by(password=password_hash, token=data.token))
             client = result.scalars().first()
+            await check_tasks(session, 'login', client=client)
             return client is not None
 
     # Восстановление пароля еще нужно сделать
-
     # Отправка смс через сервис
     # def send_sms(phone, temporary_password):
     #     api_key = '0FD5185C-BEB2-466C-4CAD-21C2FEE5F855'  # Замените на ваш API-ключ SMS.RU
-    #     sender = 'SaveUp'  # Замените на имя отправителя, зарегистрированное в SMS.RU
+    #     sender = 'Uplaim'  # Замените на имя отправителя, зарегистрированное в SMS.RU
     #     message = f'Ваш временный пароль: {temporary_password}'
     #
     #     url = 'https://sms.ru/sms/send'
@@ -270,6 +271,8 @@ class CompanyRepository:
 
             result = await session.execute(select(Company).where(Company.id == data.company_id))
             company = result.scalars().first()
+
+            await check_tasks(session, 'join', company, client,)
 
             if not client or not company:
                 return False
@@ -454,6 +457,7 @@ class TariffRepository:
                     else:
                         break
                 break
+            await check_tasks(session, 'tariff', client=client, tariff=tariff)
 
             await session.commit()
             await session.close()
@@ -1100,9 +1104,9 @@ class CompetitionRepository:
             return tasks
 
     @classmethod
-    async def all_transaction_tasks(cls):
+    async def all_transaction_tasks(cls, client_id: int):
         async with new_session() as session:
-            result = await session.execute(select(TransactionCompetition))
+            result = await session.execute(select(TransactionCompetition).where(TransactionCompetition.client_id == client_id))
             transaction_tasks = result.scalars().all()
             return transaction_tasks
 

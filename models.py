@@ -61,7 +61,9 @@ client_tasks = Table(
     'client_tasks',
     Base.metadata,
     Column('task_id', Integer, ForeignKey('tasks.id'), primary_key=True),
-    Column('client_id', Integer, ForeignKey('clients.id'), primary_key=True)
+    Column('client_id', Integer, ForeignKey('clients.id'), primary_key=True),
+    Column('quantity', String),
+    Column('done', String),
 )
 
 
@@ -130,6 +132,7 @@ class Client(Base):
     tariff_end = Column(DateTime())
 
     transactions = relationship('Transaction', back_populates='client', lazy="subquery")
+    transaction_competitions = relationship('TransactionCompetition', back_populates='client', lazy="subquery")
 
     notify = relationship('Notification', back_populates='client', lazy="subquery")
     referrals = relationship('Referral', back_populates='referrer', foreign_keys='Referral.referrer_id', lazy="subquery")
@@ -568,11 +571,13 @@ class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
+    type = Column(String(200))  # join, buy, invite, login, exchange, tariff,
     short_description = Column(String)
     description = Column(String(1000))
+    quantity = Column(String(200))
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_TASKS)))
     reward_type = Column(String(200))
-    reward = Column(String(200))
+    reward = Column(Integer)
     date_end = Column(DateTime)
     company_id = Column(Integer, ForeignKey('companies.id'))
     company = relationship('Company', lazy="subquery")
@@ -586,6 +591,8 @@ class TransactionCompetition(Base):
     __tablename__ = 'transaction_competitions'
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship('Client')
     task_id = Column(Integer, ForeignKey('tasks.id'))
     task = relationship('Task', lazy="subquery")
     created_at = Column(DateTime, default=datetime.utcnow())

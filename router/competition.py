@@ -64,8 +64,8 @@ async def all_tasks():
 
 
 @competition_router.get('/all_transaction_tasks')
-async def all_transaction_tasks():
-    result = await CompetitionRepository.all_transaction_tasks()
+async def all_transaction_tasks(client_id: int = Query(None, alias="client_id")):
+    result = await CompetitionRepository.all_transaction_tasks(client_id)
 
     if not result:
         raise HTTPException(status_code=404, detail="Not found")
