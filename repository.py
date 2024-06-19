@@ -207,6 +207,8 @@ class ClientRepository:
             else:
                 return None
 
+    # запрос на мои купоны и промокоды по категориям
+
 
 class CompanyRepository:
     @classmethod
@@ -273,7 +275,7 @@ class CompanyRepository:
             result = await session.execute(select(Company).where(Company.id == data.company_id))
             company = result.scalars().first()
 
-            await check_tasks(session, 'join', company, client,)
+            await check_tasks(session, 'join', company, client, )
 
             if not client or not company:
                 return False
@@ -1032,7 +1034,7 @@ class CompetitionRepository:
                         "color": competition.color,
                         "tickets": []
                     }
-                if ticket:
+                if ticket and ticket.activate:
                     competitions_dict[competition.id]["tickets"].append({
                         "id": ticket.id,
                         "name": ticket.name,
@@ -1041,9 +1043,35 @@ class CompetitionRepository:
                         "updated_at": ticket.updated_at
                     })
 
+            result = await session.execute(
+                select(
+                    Competition.id,
+                    Competition.name,
+                    Ticket.color,
+                    func.count(Ticket.id).label('quantity_tickets')
+                ).join(Ticket, Competition.id == Ticket.competition_id)
+                .where(Ticket.client_id == client_id, Ticket.activate != True)
+                .group_by(Competition.id, Competition.name, Ticket.color)
+            )
+            tickets_data = result.all()
+
+            # Format the results into the desired structure
+            not_activate_tickets = [
+                {
+                    "competition_id": competition_id,
+                    "quantity_tickets": quantity_tickets,
+                    "competition": competition_name,
+                    "color": color
+                }
+                for competition_id, competition_name, color, quantity_tickets in tickets_data
+            ]
+
             competitions_list = list(competitions_dict.values())
 
-            return competitions_list
+            return {
+                "not_activate": not_activate_tickets,
+                "activate": competitions_list
+            }
 
     @classmethod
     async def tickets_on_sell(cls):
@@ -1108,7 +1136,8 @@ class CompetitionRepository:
     @classmethod
     async def all_transaction_tasks(cls, client_id: int):
         async with new_session() as session:
-            result = await session.execute(select(TransactionCompetition).where(TransactionCompetition.client_id == client_id))
+            result = await session.execute(
+                select(TransactionCompetition).where(TransactionCompetition.client_id == client_id))
             transaction_tasks = result.scalars().all()
             return transaction_tasks
 
