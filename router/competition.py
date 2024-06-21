@@ -10,8 +10,8 @@ competition_router = APIRouter(
 
 
 @competition_router.get('/competitions')
-async def competitions():
-    result = await CompetitionRepository.all_competitions()
+async def competitions(client_id: int = Query(None, alias="client_id")):
+    result = await CompetitionRepository.all_competitions(client_id)
 
     if not result:
         raise HTTPException(status_code=404, detail="Not found")
@@ -48,6 +48,15 @@ async def tickets_on_sell():
 @competition_router.post('/buy_tickets')
 async def buy_tickets(client_id: int, competition_id: int, quantity: int):
     result = await CompetitionRepository.buy_tickets(client_id, competition_id, quantity)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Not found")
+    return result
+
+
+@competition_router.post('/activate_tickets')
+async def activate_tickets(client_id: int, competition_id: int, count: int):
+    result = await CompetitionRepository.activate_tickets(client_id, competition_id, count)
 
     if not result:
         raise HTTPException(status_code=404, detail="Not found")

@@ -971,10 +971,24 @@ class NotificationsRepository:
 
 class CompetitionRepository:
     @classmethod
-    async def all_competitions(cls):
+    async def all_competitions(cls, client_id: int):
         async with new_session() as session:
             result = await session.execute(select(Competition).where(Competition.date_end > datetime.today()))
             competitions = result.scalars().all()
+
+            if client_id is not None:
+                for competition in competitions:
+                    # Получаем количество активированных билетов для текущего клиента и соревнования
+                    tickets_count_result = await session.execute(
+                        select(func.count(Ticket.id))
+                        .where(Ticket.competition_id == competition.id, Ticket.client_id == client_id,
+                               Ticket.activate == True)
+                    )
+                    tickets_count = tickets_count_result.scalar()
+
+                    # Добавляем это число в объект соревнования
+                    competition.current_client_active_tickets = tickets_count
+
             return competitions
 
     @classmethod
@@ -1125,6 +1139,32 @@ class CompetitionRepository:
 
             await session.commit()
             return {"status": "success", "message": f'Билетов успешно куплено: {quantity} '}
+
+    @classmethod
+    async def activate_tickets(cls, client_id: int, competition_id: int, count: int):
+        async with new_session() as session:
+            client = (await session.execute(select(Client).where(Client.id == client_id))).scalars().first()
+            if client is None:
+                return {"status": "error", "message": "Клиент не найден"}
+            competition = (await session.execute(select(Competition).where(Competition.id == competition_id))).scalars().first()
+            if competition is None:
+                return {"status": "error", "message": "Конкурс не найден"}
+            tickets = (await session.execute(
+                select(Ticket).where(
+                    Ticket.competition_id == competition_id,
+                    Ticket.client_id == client_id,
+                    Ticket.activate == False
+                ).limit(count)
+            )).scalars().all()
+
+            if len(tickets) < count:
+                return {"status": "error", "message": "Недостаточно билетов"}
+
+            for ticket in tickets:
+                ticket.activate = True
+
+            await session.commit()
+            return {"status": "success", "message": f"{count} билетов активировано"}
 
     @classmethod
     async def all_tasks(cls):
