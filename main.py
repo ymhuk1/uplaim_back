@@ -41,7 +41,6 @@ sentry_sdk.init(
 )
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-print('test')
 
 app = FastAPI()
 

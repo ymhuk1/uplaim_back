@@ -1,6 +1,6 @@
-from typing import List, Annotated
+from typing import List, Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 
 from repository import ClientRepository
 from schemas import ClientIn, ClientOut, CompanyModel, ClientEditDataIn
@@ -36,3 +36,21 @@ async def edit_client(data: ClientEditDataIn, authorization: str = Header(alias=
     if not client:
         raise HTTPException(status_code=404, detail="No client found")
     return client
+
+
+@client_router.get("/get_coupons_categories")
+async def get_coupons_categories(category_id: int, client_id: int):
+    coupons = await ClientRepository.get_coupons_categories(category_id, client_id)
+
+    if not coupons:
+        raise HTTPException(status_code=404, detail="No coupons found")
+    return coupons
+
+
+@client_router.get("/transactions")
+async def get_transactions(client_id: int, balls: Optional[bool] = Query(None, alias="balls"), cash: Optional[bool] = Query(None, alias="cash"), up: Optional[bool] = Query(None, alias="up")):
+    transactions = await ClientRepository.get_transactions(client_id, balls, cash, up)
+
+    if not transactions:
+        raise HTTPException(status_code=401, detail="No transaction found")
+    return transactions

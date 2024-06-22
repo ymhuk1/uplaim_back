@@ -11,7 +11,7 @@ from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
     Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
-    Transaction
+    Transaction, Balls
 from db import new_session
 from utils.tasks import check_tasks
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
@@ -207,7 +207,33 @@ class ClientRepository:
             else:
                 return None
 
-    # запрос на мои купоны и промокоды по категориям
+    @classmethod
+    async def get_coupons_categories(cls, category_id: int, client_id: int):
+        async with new_session() as session:
+            coupons = (await session.execute(select(Coupon).join(Company).where(Company.category_id == category_id, Coupon.client_id == client_id))).scalars().all()
+
+            return coupons
+
+    @classmethod
+    async def get_transactions(cls, client_id: int, balls: bool, cash: bool, up: bool):
+        async with new_session() as session:
+            list_transaction = (await session.execute(select(Transaction).where(Transaction.client_id == client_id))).scalars().all()
+            list_balls = (await session.execute(select(Balls).where(Balls.client_id == client_id))).scalars().all()
+            transactions = []
+            if cash:
+                for transaction in list_transaction:
+                    if transaction.balance > 0:
+                        transactions.append(transaction)
+            elif up:
+                for transaction in list_transaction:
+                    if transaction.up_balance > 0:
+                        transactions.append(transaction)
+            elif balls:
+                for transaction in list_balls:
+                    if transaction.ball > 0:
+                        transactions.append(transaction)
+
+            return transactions
 
 
 class CompanyRepository:
@@ -544,11 +570,6 @@ class ExchangeRepository:
     @classmethod
     async def active_exchange(cls, client_id: int, available: bool, city: Optional[str]):
         async with new_session() as session:
-
-            # client = result.scalars().first()
-            # print('client_id: ', client_id)
-            # print('available: ', available)
-            # print('city: ', city)
 
             result = await session.execute(
                 select(Exchange).where(Exchange.status == 'active', Exchange.taker_id.is_(None)))
