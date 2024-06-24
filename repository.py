@@ -11,13 +11,13 @@ from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
     Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
-    Transaction, Balls
+    Transaction, Balls, Franchise
 from db import new_session
 from utils.tasks import check_tasks
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
     CompanyModel, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
     GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, \
-    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn
+    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn, FranchiseData
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
@@ -1208,3 +1208,16 @@ class CompetitionRepository:
             result = await session.execute(select(Question))
             questions = result.scalars().all()
             return questions
+
+
+class FranchiseRepository:
+    @classmethod
+    async def create_request(cls, data: FranchiseData):
+        async with new_session() as session:
+            franchise = Franchise(
+                name=data.name,
+                phone=data.phone,
+            )
+            session.add(franchise)
+            await session.commit()
+            return {"message": "Запрос принят", "status": "success"}

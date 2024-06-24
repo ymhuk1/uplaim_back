@@ -609,5 +609,16 @@ class Question(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
 
+class Franchise(Base):
+    __tablename__ = 'franchise'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(200))
+    phone = Column(String(200))
+    comment = Column(String(1000))
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+
 
 # модель жетонов

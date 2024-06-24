@@ -336,3 +336,7 @@ class NotifyData(BaseModel):
     date: Optional[datetime] = None
     type_notify: Optional[str] = None
 
+
+class FranchiseData(BaseModel):
+    name: str
+    phone: str

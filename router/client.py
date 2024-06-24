@@ -2,8 +2,8 @@ from typing import List, Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Query
 
-from repository import ClientRepository
-from schemas import ClientIn, ClientOut, CompanyModel, ClientEditDataIn
+from repository import ClientRepository, FranchiseRepository
+from schemas import ClientIn, ClientOut, CompanyModel, ClientEditDataIn, FranchiseData
 
 client_router = APIRouter(
     prefix="/api",
@@ -54,3 +54,12 @@ async def get_transactions(client_id: int, balls: Optional[bool] = Query(None, a
     if not transactions:
         raise HTTPException(status_code=401, detail="No transaction found")
     return transactions
+
+
+@client_router.post("/create_request")
+async def create_request(data: FranchiseData):
+    result = await FranchiseRepository.create_request(data)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="not found")
+    return result
