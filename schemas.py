@@ -1,6 +1,6 @@
 from datetime import datetime, date
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel
+from typing import Optional, List, Dict, Any, Union, ForwardRef
+from pydantic import BaseModel, Field
 
 
 class SClientId(BaseModel):
@@ -28,14 +28,53 @@ class VerifySMSDataOut(BaseModel):
     message: str
 
 
+class PaymentMethodRequest(BaseModel):
+    method_type: Optional[str] = None
+    card_number: Optional[str] = None
+    expiry_data: Optional[str] = None
+    cvv: Optional[str] = None
+    sbp_phone: Optional[str] = None
+    bik: Optional[str] = None
+    visible: Optional[bool] = None
+    is_primary: Optional[bool] = None
+
+
+class PaymentMethodResponse(BaseModel):
+    id: Optional[int] = None
+    method_type: Optional[str] = None
+    card_number: Optional[str] = None
+    expiry_data: Optional[str] = None
+    cvv: Optional[str] = None
+    sbp_phone: Optional[str] = None
+    bik: Optional[str] = None
+    visible: Optional[bool] = None
+    is_primary: Optional[bool] = None
+
+
 class ClientEditDataIn(BaseModel):
     name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
     gender: Optional[str] = None
+    date_of_birth: Optional[str] = None
     city: Optional[str] = None
-    date_of_birth: Optional[date] = None
+    payment_methods: Optional[PaymentMethodRequest] = None
+
+
+class ClientResponse(BaseModel):
+    id: int
+    name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    city: Optional[str] = None
+    payment_methods: Optional[List[PaymentMethodResponse]] = []
+
+    # class Config:
+    #     orm_mode = True
 
 
 class PasswordData(BaseModel):
@@ -80,9 +119,9 @@ class NewsModel(BaseModel):
 
 
 class CouponModel(BaseModel):
-    id:  Optional[int] = None
+    id: Optional[int] = None
     description: Optional[str] = None
-    company_id:  Optional[int] = None
+    company_id: Optional[int] = None
     # company:
     price: Optional[int] = None
     name: Optional[str] = None
@@ -93,7 +132,7 @@ class CouponModel(BaseModel):
 
 
 class CityModel(BaseModel):
-    id:  int
+    id: int
     name: str
 
 

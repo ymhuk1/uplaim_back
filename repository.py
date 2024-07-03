@@ -4,20 +4,20 @@ import random
 import string
 
 from datetime import datetime, timedelta
-from typing import Optional, List
+from typing import Optional, List, Type
 
 from sqlalchemy import select, func, cast, Float, and_
 from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
     Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
-    Transaction, Balls, Franchise
+    Transaction, Balls, Franchise, PaymentMethod
 from db import new_session
 from utils.tasks import check_tasks
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
     CompanyModel, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
     GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, \
-    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn, FranchiseData
+    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn, FranchiseData, ClientResponse
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
@@ -202,7 +202,22 @@ class ClientRepository:
                 if data.gender: client.gender = data.gender
                 if data.date_of_birth: client.date_of_birth = data.date_of_birth
                 if data.city and city: client.city = city
-                await session.commit()
+
+                if data.payment_methods:
+                    new_payment_methods = PaymentMethod(
+                        method_type=data.payment_methods.method_type,
+                        client=client,
+                        card_number=data.payment_methods.card_number,
+                        expiry_data=data.payment_methods.expiry_data,
+                        cvv=data.payment_methods.cvv,
+                        sbp_phone=data.payment_methods.sbp_phone,
+                        bik=data.payment_methods.bik,
+                        visible=data.payment_methods.visible,
+                        is_primary=data.payment_methods.is_primary,
+                    )
+                    session.add(new_payment_methods)
+                    await session.commit()
+
                 return client
             else:
                 return None
@@ -210,14 +225,16 @@ class ClientRepository:
     @classmethod
     async def get_coupons_categories(cls, category_id: int, client_id: int):
         async with new_session() as session:
-            coupons = (await session.execute(select(Coupon).join(Company).where(Company.category_id == category_id, Coupon.client_id == client_id))).scalars().all()
+            coupons = (await session.execute(select(Coupon).join(Company).where(Company.category_id == category_id,
+                                                                                Coupon.client_id == client_id))).scalars().all()
 
             return coupons
 
     @classmethod
     async def get_transactions(cls, client_id: int, balls: bool, cash: bool, up: bool):
         async with new_session() as session:
-            list_transaction = (await session.execute(select(Transaction).where(Transaction.client_id == client_id))).scalars().all()
+            list_transaction = (
+                await session.execute(select(Transaction).where(Transaction.client_id == client_id))).scalars().all()
             list_balls = (await session.execute(select(Balls).where(Balls.client_id == client_id))).scalars().all()
             transactions = []
             if cash:
@@ -1167,7 +1184,8 @@ class CompetitionRepository:
             client = (await session.execute(select(Client).where(Client.id == client_id))).scalars().first()
             if client is None:
                 return {"status": "error", "message": "Клиент не найден"}
-            competition = (await session.execute(select(Competition).where(Competition.id == competition_id))).scalars().first()
+            competition = (
+                await session.execute(select(Competition).where(Competition.id == competition_id))).scalars().first()
             if competition is None:
                 return {"status": "error", "message": "Конкурс не найден"}
             tickets = (await session.execute(

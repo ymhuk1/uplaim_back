@@ -1,3 +1,5 @@
+import base64
+import os
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Table, Float, JSON, Date
@@ -9,6 +11,14 @@ from config import STATIC_FOLDER, STATIC_FOLDER_CATEGORIES, STATIC_FOLDER_COMPAN
     STATIC_FOLDER_COMPANIES_ANOTHER, STATIC_FOLDER_NEWS, STATIC_FOLDER_TARIFFS, STATIC_FOLDER_STORIES_PHOTO, \
     STATIC_FOLDER_STORIES_ICON, STATIC_FOLDER_COMPETITIONS, STATIC_FOLDER_PRIZES, STATIC_FOLDER_TASKS, \
     STATIC_FOLDER_CLIENTS
+from cryptography.fernet import Fernet
+from dotenv import load_dotenv
+
+load_dotenv()
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+if not ENCRYPTION_KEY:
+    raise ValueError("No encryption key found in environment variables")
+cipher_suite = Fernet(ENCRYPTION_KEY.encode())
 
 storage = FileSystemStorage(path=STATIC_FOLDER + '/img')
 
@@ -143,9 +153,30 @@ class Client(Base):
     competitions = relationship('Competition', secondary="competition_clients", back_populates="clients", lazy="subquery")
     tasks = relationship('Task', secondary="client_tasks", back_populates="clients", lazy="subquery")
     coupons = relationship("Coupon", back_populates="client", lazy="subquery")
+    payment_methods = relationship("PaymentMethod", back_populates="client", lazy="subquery")
 
     def __str__(self):
         return str(self.phone)
+
+
+class PaymentMethod(Base):
+    __tablename__ = "payment_methods"
+    id = Column(Integer, primary_key=True)
+    method_type = Column(String)  # card, sbp, account?
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client")
+    card_number = Column(String, nullable=True)
+    expiry_data = Column(String, nullable=True)
+    cvv = Column(String, nullable=True)
+    sbp_phone = Column(String, nullable=True)
+    bik = Column(String, nullable=True)
+    visible = Column(Boolean, default=True)
+    is_primary = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.method_type)
 
 
 class Category(Base):
@@ -333,7 +364,7 @@ class Coupon(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     def __str__(self):
-        return self.name
+        return str(self.name) or f'None'
 
     @property
     def company_category(self):
@@ -398,7 +429,7 @@ class Transaction(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     def __str__(self):
-        return f'Баланс: {self.balance}, Апы {self.up_balance}'
+        return f'Баланс: {str(self.balance)}, Апы {str(self.up_balance)}'
 
 
 class Exchange(Base):
@@ -438,6 +469,9 @@ class Exchange(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return f'{self.id}'
+
 
 class Notification(Base):
     __tablename__ = 'notifications'
@@ -453,6 +487,9 @@ class Notification(Base):
     client = relationship('Client')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.title) or f'None'
 
 
 class MainAccount(Base):
@@ -475,6 +512,9 @@ class Referral(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.level)
+
 
 class Reward(Base):
     __tablename__ = 'reward'
@@ -490,6 +530,9 @@ class Reward(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.amount)
+
 
 class Story(Base):
     __tablename__ = 'stories'
@@ -504,6 +547,9 @@ class Story(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.name)
+
 
 class Setting(Base):
     __tablename__ = 'settings'
@@ -513,6 +559,9 @@ class Setting(Base):
     discount = Column(Float)  # скидка для клиентов от компаний настраивается из админки
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.id)
 
 
 class Competition(Base):
@@ -532,7 +581,7 @@ class Competition(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Prize(Base):
@@ -550,7 +599,7 @@ class Prize(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Ticket(Base):
@@ -565,6 +614,9 @@ class Ticket(Base):
     activate = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.name)
 
 
 class Task(Base):
@@ -586,6 +638,9 @@ class Task(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.name)
+
 
 class TransactionCompetition(Base):
     __tablename__ = 'transaction_competitions'
@@ -598,6 +653,9 @@ class TransactionCompetition(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.name)
+
 
 class Question(Base):
     __tablename__ = 'questions'
@@ -608,6 +666,9 @@ class Question(Base):
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 
+    def __str__(self):
+        return str(self.question)
+
 
 class Franchise(Base):
     __tablename__ = 'franchise'
@@ -617,6 +678,9 @@ class Franchise(Base):
     comment = Column(String(1000))
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.phone)
 
 
 
