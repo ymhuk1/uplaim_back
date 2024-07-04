@@ -52,6 +52,7 @@ def upgrade() -> None:
     # op.add_column('payment_methods', sa.Column('created_at', sa.DateTime(), nullable=True))
     # op.add_column('payment_methods', sa.Column('updated_at', sa.DateTime(), nullable=True))
 
+
     # Drop the indexes if they exist
     if conn.execute(sa.text("SELECT 1 FROM pg_indexes WHERE indexname = 'ix_payment_methods_id'")).scalar():
         op.drop_index('ix_payment_methods_id', table_name='payment_methods')

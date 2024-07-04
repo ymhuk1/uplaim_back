@@ -683,6 +683,15 @@ class Franchise(Base):
         return str(self.phone)
 
 
+class VirtualAccount(Base):
+    __tablename__ = 'virtual_account'
+    id = Column(Integer, primary_key=True)
+    customer_id = Column(String(100))
+    status = Column(String(100))  # open, pending, closed
+    balance = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
 
 
 # модель жетонов
