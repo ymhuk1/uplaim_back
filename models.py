@@ -688,7 +688,10 @@ class VirtualAccount(Base):
     id = Column(Integer, primary_key=True)
     customer_id = Column(String(100))
     status = Column(String(100))  # open, pending, closed
-    balance = Column(Float)
+    balance = Column(Float(2))
+    up_balance = Column(Float(2))
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship('Client')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
 

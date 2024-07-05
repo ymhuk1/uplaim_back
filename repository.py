@@ -142,7 +142,7 @@ class ClientRepository:
     @classmethod
     async def get_client(cls, authorization: str):
         async with (new_session() as session):
-            result = await session.execute(select(Client).filter_by(token=authorization))
+            result = await session.execute(select(Client).where(Client.token == authorization))
             client = result.scalars().first()
             if client:
                 balance = await get_balance(client.id)
@@ -166,8 +166,6 @@ class ClientRepository:
 
                 return {'client': client}
 
-            if client:
-                return {'client': client}
             else:
                 return None
 
