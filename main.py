@@ -65,6 +65,12 @@ app.include_router(redirect_router)
 async def robots_txt():
     return FileResponse("robots.txt")
 
+
+@app.get("/")
+async def read_root():
+    return FileResponse("uplaim.html")
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
