@@ -3,6 +3,8 @@ import os
 
 import schedule
 from fastapi import FastAPI, Depends
+from fastapi.responses import FileResponse
+
 from contextlib import asynccontextmanager
 
 from fastapi.security import OAuth2PasswordBearer
@@ -58,6 +60,10 @@ app.include_router(notify_router)
 app.include_router(competition_router)
 app.include_router(redirect_router)
 
+
+@app.get("/robots.txt")
+async def robots_txt():
+    return FileResponse("robots.txt")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
