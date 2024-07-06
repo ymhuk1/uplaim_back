@@ -696,5 +696,15 @@ class VirtualAccount(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
 
+class RevocationOfPrivacy(Base):
+    __tablename__ = 'revocation_of_privacy'
+    id = Column(Integer, primary_key=True)
+    phone = Column(String(100))
+    comment = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+
 
 # модель жетонов

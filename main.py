@@ -2,20 +2,22 @@ import asyncio
 import os
 
 import schedule
-from fastapi import FastAPI, Depends
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import FileResponse, HTMLResponse
 
 from contextlib import asynccontextmanager
 
 from fastapi.security import OAuth2PasswordBearer
 from sqladmin import Admin
 from starlette.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from admin import CityAdmin, UserAdmin, ClientAdmin, CategoryAdmin, CompanyAdmin, NewsAdmin, TagAdmin, ReviewAdmin, \
     BallsAdmin, CouponAdmin, TariffAdmin, SubscribedTariffAdmin, NotificationAdmin, ReferralAdmin, RewardAdmin, \
     ExchangeAdmin, TransactionAdmin, CompetitionAdmin, PrizeAdmin, TicketAdmin, TaskAdmin, TransactionCompetitionAdmin, \
     StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin
 from db import engine
+from models import RevocationOfPrivacy
 from router.auth import auth_router as auth_router
 from router.category import category_router
 from router.company import company_router as company_router
@@ -60,6 +62,8 @@ app.include_router(notify_router)
 app.include_router(competition_router)
 app.include_router(redirect_router)
 
+templates = Jinja2Templates(directory="templates")
+
 
 @app.get("/robots.txt")
 async def robots_txt():
@@ -70,6 +74,17 @@ async def robots_txt():
 async def read_root():
     return FileResponse("uplaim.html")
 
+
+@app.get("/revocation_of_privacy", response_class=HTMLResponse)
+async def revocation_of_privacy_form(request: Request):
+    return templates.TemplateResponse("revocation_of_privacy.html", {"request": request})
+
+
+@app.post("/revocation_of_privacy")
+async def revocation_of_privacy(request: Request, phone: str = Form(...), comment: str = Form(...)):
+    feedback = RevocationOfPrivacy(phone=phone, comment=comment)
+    # Здесь можно добавить логику для обработки отзыва, например, сохранение в базу данных
+    return templates.TemplateResponse("success.html", {"request": request, "feedback": feedback})
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
