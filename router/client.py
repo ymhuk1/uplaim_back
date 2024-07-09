@@ -63,3 +63,12 @@ async def create_request(data: FranchiseData):
     if not result:
         raise HTTPException(status_code=404, detail="not found")
     return result
+
+
+@client_router.get("/get_cities")
+async def get_cities():
+    result = await ClientRepository.get_cities()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="not found")
+    return result

@@ -250,6 +250,12 @@ class ClientRepository:
 
             return transactions
 
+    @classmethod
+    async def get_cities(cls):
+        async with new_session() as session:
+            list_cities = (await session.execute(select(City))).scalars().all()
+            return list_cities
+
 
 class CompanyRepository:
     @classmethod

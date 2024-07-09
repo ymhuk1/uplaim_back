@@ -65,22 +65,22 @@ app.include_router(redirect_router)
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/robots.txt")
+@app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
     return FileResponse("robots.txt")
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 async def read_root():
     return FileResponse("uplaim.html")
 
 
-@app.get("/revocation_of_privacy", response_class=HTMLResponse)
+@app.get("/revocation_of_privacy", response_class=HTMLResponse, include_in_schema=False)
 async def revocation_of_privacy_form(request: Request):
     return templates.TemplateResponse("revocation_of_privacy.html", {"request": request})
 
 
-@app.post("/revocation_of_privacy")
+@app.post("/revocation_of_privacy", include_in_schema=False)
 async def revocation_of_privacy(request: Request, phone: str = Form(...), comment: str = Form(...)):
     feedback = RevocationOfPrivacy(phone=phone, comment=comment)
     # Здесь можно добавить логику для обработки отзыва, например, сохранение в базу данных
