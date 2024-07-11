@@ -250,6 +250,7 @@ class ClientRepository:
 
             return transactions
 
+
     @classmethod
     async def get_cities(cls):
         async with new_session() as session:
