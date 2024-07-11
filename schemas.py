@@ -11,6 +11,7 @@ class SendPhoneNumberIn(BaseModel):
     phone: str
     device: dict
     referral_code: Optional[str] = None
+    push_token: Optional[str] = None
 
 
 class SendPhoneNumberOut(BaseModel):

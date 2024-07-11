@@ -120,6 +120,7 @@ class Client(Base):
     referral_link = Column(String, nullable=True)
     device = Column(String, nullable=True)
     token = Column(String, nullable=True)
+    push_token = Column(String, nullable=True)
     photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_CLIENTS)), nullable=True)
     gender = Column(String, nullable=True)
     date_of_birth = Column(Date, nullable=True)

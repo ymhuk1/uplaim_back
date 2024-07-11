@@ -46,6 +46,7 @@ class ClientRepository:
             phone = client.phone
             device = client.device
             referral_code = client.referral_code
+            push_token = client.push_token
             token_data = {'device': device, 'phone': phone}
             token = jwt.encode(token_data, TOKEN, algorithm='HS256')
 
@@ -73,7 +74,7 @@ class ClientRepository:
                     if repeat:
                         referral_link = generate_string(8)
                 new_client = Client(phone=phone, sms_code=sms_code, token=token, tariff_start=default_datetime,
-                                    tariff=tariff, referral_link=referral_link)
+                                    tariff=tariff, referral_link=referral_link, push_token=push_token)
                 session.add(new_client)
                 new_user = True
 
@@ -83,6 +84,7 @@ class ClientRepository:
             else:
                 client.token = token
                 client.sms_code = sms_code
+                client.push_token = push_token
                 new_user = False
 
             await session.commit()
