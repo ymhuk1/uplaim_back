@@ -70,6 +70,21 @@ async def robots_txt():
     return FileResponse("robots.txt")
 
 
+@app.get("/acceptance", include_in_schema=False)
+async def robots_txt():
+    return FileResponse("static/acceptance.pdf")
+
+
+@app.get("/agreement", include_in_schema=False)
+async def robots_txt():
+    return FileResponse("static/agreement.pdf")
+
+
+@app.get("/privacy", include_in_schema=False)
+async def robots_txt():
+    return FileResponse("privacy.html")
+
+
 @app.get("/", include_in_schema=False)
 async def read_root():
     return FileResponse("uplaim.html")
