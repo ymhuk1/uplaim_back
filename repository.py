@@ -216,7 +216,8 @@ class ClientRepository:
                         is_primary=data.payment_methods.is_primary,
                     )
                     session.add(new_payment_methods)
-                    await session.commit()
+
+                await session.commit()
 
                 return client
             else:
