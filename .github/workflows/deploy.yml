@@ -25,7 +25,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd /var/www/site
           git config --global credential.helper store
-          echo "https://<your_username>:${GH_TOKEN}@github.com" > ~/.git-credentials
+          echo "https://viqto:${GH_TOKEN}@github.com" > ~/.git-credentials
           git pull
           supervisorctl restart fastapi
         EOF
