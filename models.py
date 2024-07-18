@@ -709,3 +709,4 @@ class RevocationOfPrivacy(Base):
 
 
 # модель жетонов
+# test
