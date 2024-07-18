@@ -194,13 +194,16 @@ class ClientRepository:
             result = await session.execute(select(City).where(City.name == data.city))
             city = result.scalars().first()
 
+
             if client:
                 if data.name: client.name = data.name
                 if data.last_name: client.last_name = data.last_name
                 if data.phone: client.phone = data.phone
                 if data.email: client.email = data.email
                 if data.gender: client.gender = data.gender
-                if data.date_of_birth: client.date_of_birth = data.date_of_birth
+                if data.date_of_birth:
+                    date_obj = datetime.strptime(data.date_of_birth, '%d-%m-%Y').date()
+                    client.date_of_birth = date_obj
                 if data.city and city: client.city = city
 
                 if data.payment_methods:
