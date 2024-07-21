@@ -330,6 +330,9 @@ class CompanyRepository:
 
             result = await session.execute(select(Company).where(Company.id == data.company_id))
             company = result.scalars().first()
+            if company.welcome_balls:
+                added_welcome_balls = Balls(company_id=company.id, ball=int(company.welcome_balls), hide_ball=0)
+                client.balls.append(added_welcome_balls)
 
             await check_tasks(session, 'join', company, client, )
 
