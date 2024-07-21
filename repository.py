@@ -316,6 +316,8 @@ class CompanyRepository:
                         company.max_pay_point = await calculate_max_balls(tariff, company, session)
                         company.cashback = await calculate_cashback(tariff, company, session)
 
+                company.news.sort(key=lambda news: news.created_at, reverse=True)
+
                 return company
             else:
                 return None
