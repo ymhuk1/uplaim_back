@@ -303,6 +303,7 @@ class StoryModel(BaseModel):
     photo: Optional[str] = None
     link: Optional[str] = None
     icon: Optional[str] = None
+    button_name: Optional[str] = None
     created_at: datetime | None
 
 

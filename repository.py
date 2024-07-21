@@ -6,7 +6,7 @@ import string
 from datetime import datetime, timedelta
 from typing import Optional, List, Type
 
-from sqlalchemy import select, func, cast, Float, and_
+from sqlalchemy import select, func, cast, Float, and_, desc
 from sqlalchemy.orm import joinedload
 
 from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
@@ -421,14 +421,14 @@ class StoryRepository:
     @classmethod
     async def get_stories_search(cls):
         async with new_session() as session:
-            result = await session.execute(select(Story).where(Story.show_in_search == True))
-            return result.scalars().all()
+            stories_in_search = (await session.execute(select(Story).where(Story.show_in_search == True).order_by(desc(Story.created_at)))).scalars().all()
+            return stories_in_search
 
     @classmethod
     async def get_all_stories(cls):
         async with new_session() as session:
-            result = await session.execute(select(Story))
-            return result.scalars().all()
+            stories = (await session.execute(select(Story).order_by(desc(Story.created_at)))).scalars().all()
+            return stories
 
 
 class CategoryRepository:
