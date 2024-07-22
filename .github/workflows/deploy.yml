@@ -18,28 +18,16 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Print environment variables for debugging
-      run: |
-        echo "Server User: ${{ secrets.SERVER_USER }}"
-        echo "Server IP: ${{ secrets.SERVER_IP }}"
-        echo "GitHub Actor: ${{ github.actor }}"
-
     - name: Deploy code to server
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GIT_USER: ${{ github.actor }}
       run: |
-        echo "Starting SSH connection to the server"
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          echo "Connected to server"
-          cd /var/www/site || exit
-          echo "Changed directory to /var/www/site"
+          cd /var/www/site
           git config --global credential.helper store
-          echo "Configured git credential helper"
-          echo "https://x-access-token:${GITHUB_TOKEN}@github.com/viqto/uplaim-back.git" > ~/.git-credentials
-          echo "Stored GitHub credentials"
-          git pull || exit
-          echo "Pulled latest code from GitHub"
-          supervisorctl restart fastapi || exit
-          echo "Restarted fastapi"
+          echo "https://${GIT_USER}:${GH_TOKEN}@github.com" > ~/.git-credentials
+          cat ~/.git-credentials
+          git pull
+          supervisorctl restart fastapi
         EOF
-        echo "Deployment script completed"
