@@ -393,6 +393,7 @@ class CompanyRepository:
 
             return coupons
 
+
     @classmethod
     async def add_coupon(cls, coupon_id: int, authorization: str):
         async with new_session() as session:

@@ -707,6 +707,17 @@ class RevocationOfPrivacy(Base):
     updated_at = Column(DateTime, default=datetime.utcnow())
 
 
+class Push(Base):
+    __tablename__ = 'push'
+    id = Column(Integer, primary_key=True)
+    to = Column(String(100))
+    title = Column(String(100))
+    body = Column(String(100))
+    data = Column(JSON)
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship('Client')
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
 
 
 # модель жетонов
