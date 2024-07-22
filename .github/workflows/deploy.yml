@@ -26,6 +26,8 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd /var/www/site
           git config --global credential.helper store
+          GIT_USER="viqto"
+          GH_TOKEN="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"
           echo "https://${GIT_USER}:${GH_TOKEN}@github.com" > ~/.git-credentials
           cat ~/.git-credentials
           git pull
