@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 from db import new_session
 from models import User, City, Client, Category, Company, News, Tag, Review, Balls, Coupon, Tariff, SubscribedTariff, \
     Notification, Referral, Reward, Exchange, Transaction, Competition, Prize, Ticket, Task, TransactionCompetition, \
-    Story, Setting, Question
+    Story, Setting, Question, Push
 from utils.auth_user import get_password_hash, authenticate_user, create_access_token
 
 
@@ -397,4 +397,12 @@ class SettingAdmin(ModelView, model=Setting):
     form_excluded_columns = [Story.created_at, Story.updated_at]
     name = "Настройки"
     name_plural = "Настройки"
+    icon = "fa-solid fa-sliders"
+
+
+class PushAdmin(ModelView, model=Push):
+    column_list = [Push.id]
+    form_excluded_columns = [Push.created_at, Push.updated_at]
+    name = "Пуш"
+    name_plural = "Пуши"
     icon = "fa-solid fa-sliders"

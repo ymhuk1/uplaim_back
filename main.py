@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from admin import CityAdmin, UserAdmin, ClientAdmin, CategoryAdmin, CompanyAdmin, NewsAdmin, TagAdmin, ReviewAdmin, \
     BallsAdmin, CouponAdmin, TariffAdmin, SubscribedTariffAdmin, NotificationAdmin, ReferralAdmin, RewardAdmin, \
     ExchangeAdmin, TransactionAdmin, CompetitionAdmin, PrizeAdmin, TicketAdmin, TaskAdmin, TransactionCompetitionAdmin, \
-    StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin
+    StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin, PushAdmin
 from db import engine
 from models import RevocationOfPrivacy
 from router.auth import auth_router as auth_router
@@ -132,6 +132,7 @@ admin.add_view(TransactionCompetitionAdmin)
 admin.add_view(StoryAdmin)
 admin.add_view(SettingAdmin)
 admin.add_view(QuestionAdmin)
+admin.add_view(PushAdmin)
 
 
 @app.on_event("startup")

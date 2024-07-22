@@ -17,7 +17,5 @@ async def send_notification(client, title, body, session):
     }
     response = requests.post(url, json=payload, headers=headers)
     new_push = Push(to=client.push_token, title=title, body=body, data=response.json(), client=client)
-    print('new_push: ', new_push)
-    print('response.json(): ', response.json())
 
     await session.add(new_push)
