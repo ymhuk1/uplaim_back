@@ -7,4 +7,4 @@ async def notify(client, type_notify, title, description=None, read=False, sessi
     new_notify = Notification(client=client, type=type_notify, title=title, description=description, read=read)
     client.notify.append(new_notify)
 
-    await send_notification(client, title, description, session=session)
+    # await send_notification(client, title, description, session=session)
