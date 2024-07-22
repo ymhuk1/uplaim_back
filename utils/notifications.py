@@ -1,5 +1,5 @@
 from models import Notification
-from utils.push_sender import send_notification
+# from utils.push_sender import send_notification
 
 
 async def notify(client, type_notify, title, description=None, read=False, session=None):
