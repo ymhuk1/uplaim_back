@@ -30,7 +30,7 @@ async def process_rewards():
             # Уменьшаем amount на сумму, которую уже зачислили
             reward.amount -= amount_to_credit
 
-            await notify(agent, 'balance', f"Зачислилось {amount_to_credit} рублей", session=session)
+            await notify(agent, 'balance', f"Зачислилось {amount_to_credit} рублей")
 
     # Обновляем записи в базе данных
     await session.commit()

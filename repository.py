@@ -4,27 +4,18 @@ import random
 import string
 
 from datetime import datetime, timedelta
-from typing import Optional, List, Type
 
 from sqlalchemy import select, func, cast, Float, and_, desc
 from sqlalchemy.orm import joinedload
 
-from models import Client, Company, Review, Story, Category, Coupon, Tariff, SubscribedTariff, Referral, \
-    Reward, City, Exchange, Notification, Competition, Prize, Ticket, Task, TransactionCompetition, Question, \
-    Transaction, Balls, Franchise, PaymentMethod
-from db import new_session
+from models import *
 from utils.tasks import check_tasks
-from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
-    CompanyModel, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
-    GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, \
-    AssociateCompany, UpdateExchange, NotifyData, ClientEditDataIn, FranchiseData, ClientResponse
+from schemas import *
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
 from utils.calculate_reward import calculate_reward
-from utils.exchange_utils import has_enough_balls_in_company, has_enough_cash, has_enough_saveup, \
-    from_taker_in_holder_balls, from_holder_in_taker_cash_or_up, from_holder_in_taker_balls, \
-    from_taker_in_holder_cash_or_up
+from utils.exchange_utils import *
 from utils.notifications import notify
 from utils.referral_chain import process_referral
 from utils.transactions import get_balance, get_up_balance
@@ -256,7 +247,6 @@ class ClientRepository:
 
             return transactions
 
-
     @classmethod
     async def get_cities(cls):
         async with new_session() as session:
@@ -393,7 +383,6 @@ class CompanyRepository:
 
             return coupons
 
-
     @classmethod
     async def add_coupon(cls, coupon_id: int, authorization: str):
         async with new_session() as session:
@@ -412,7 +401,7 @@ class CompanyRepository:
                     new_transaction = Transaction(client=client, balance=0, up_balance=coupon.price,
                                                   transaction_type='withdraw', status='success')
                     session.add(new_transaction)
-                    await notify(client, 'coupon', f'Вы приобрели купон за {coupon.price} Up', session=session)
+                    await notify(client, 'coupon', f'Вы приобрели купон за {coupon.price} Up')
 
                 else:
                     return {"message": "У вас не хватает UP"}
@@ -867,7 +856,7 @@ class ExchangeRepository:
             else:
                 return {"error": "Не указан тип сделки"}
 
-            await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта', session=session)
+            await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта')
             await check_tasks(session, 'exchange', client=taker)
 
             return {"exchange": existing_exchange}
