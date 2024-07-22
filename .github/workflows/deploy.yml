@@ -26,8 +26,7 @@ jobs:
 
     - name: Deploy code to server
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        GIT_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         echo "Starting SSH connection to the server"
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
@@ -36,7 +35,7 @@ jobs:
           echo "Changed directory to /var/www/site"
           git config --global credential.helper store
           echo "Configured git credential helper"
-          echo "https://${GIT_USER}:${GH_TOKEN}@github.com" > ~/.git-credentials
+          echo "https://x-access-token:${GITHUB_TOKEN}@github.com/viqto/uplaim-back.git" > ~/.git-credentials
           echo "Stored GitHub credentials"
           git pull || exit
           echo "Pulled latest code from GitHub"
