@@ -10,7 +10,7 @@ async def process_referral(referral_code, new_client, session):
     referrer = result.scalars().first()
 
     if referrer:
-        await notify(referrer, 'referral', 'Новый друг', 'Присоединился реферал вашего 1-го уровня')
+        await notify(referrer, 'referral', 'Новый друг', 'Присоединился реферал вашего 1-го уровня', session=session)
         await check_tasks(session, 'invite', client=referrer)
         await create_referral_chain(referrer, new_client, levels=5, session=session)
 

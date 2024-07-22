@@ -1,11 +1,9 @@
 import requests
 
 from models import Push
-from db import new_session
-session = new_session()
 
 
-async def send_notification(client, title, body):
+async def send_notification(client, title, body, session):
     url = "https://exp.host/--/api/v2/push/send"
     headers = {
         "Accept": "application/json",

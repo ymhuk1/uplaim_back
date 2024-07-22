@@ -412,7 +412,7 @@ class CompanyRepository:
                     new_transaction = Transaction(client=client, balance=0, up_balance=coupon.price,
                                                   transaction_type='withdraw', status='success')
                     session.add(new_transaction)
-                    await notify(client, 'coupon', f'Вы приобрели купон за {coupon.price} Up')
+                    await notify(client, 'coupon', f'Вы приобрели купон за {coupon.price} Up', session=session)
 
                 else:
                     return {"message": "У вас не хватает UP"}
@@ -867,7 +867,7 @@ class ExchangeRepository:
             else:
                 return {"error": "Не указан тип сделки"}
 
-            await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта')
+            await notify(existing_exchange.holder_id, 'exchange', 'Ваша сделка закрыта', session=session)
             await check_tasks(session, 'exchange', client=taker)
 
             return {"exchange": existing_exchange}

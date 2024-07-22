@@ -23,7 +23,7 @@ async def end_of_competition():
 
         if winner_client:
             await award_prize_to_winner(session, competition, winner_client)
-            await notify_winner(winner_client, competition)
+            await notify_winner(winner_client, competition, session=session)
 
     await reassign_inactive_tickets(session, no_active_tickets)
 
@@ -64,7 +64,7 @@ async def award_prize_to_winner(session, competition, winner_client):
     prize_competition.client = winner_client
 
 
-async def notify_winner(winner_client, competition):
+async def notify_winner(winner_client, competition, session):
     await notify(
         winner_client, 'competition',
         f"Вы выиграли конкурс «{competition.name}» и получаете приз «{competition.prizes[0]}», с вами скоро свяжутся"
