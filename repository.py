@@ -179,6 +179,9 @@ class ClientRepository:
                 companies = client.companies
                 for company in companies:
                     company.external_links = []
+                    company.cashback = {
+                        "cashback": company.cashback_company
+                    }
             if companies:
                 return companies
             else:
