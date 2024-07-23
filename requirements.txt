@@ -67,3 +67,4 @@ schedule~=1.2.2
 aioschedule~=0.5.2
 cryptography~=42.0.8
 requests~=2.32.3
+aiohttp~=3.9.5

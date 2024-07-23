@@ -155,6 +155,7 @@ class Client(Base):
     tasks = relationship('Task', secondary="client_tasks", back_populates="clients", lazy="subquery")
     coupons = relationship("Coupon", back_populates="client", lazy="subquery")
     payment_methods = relationship("PaymentMethod", back_populates="client", lazy="subquery")
+    push = relationship('Push', back_populates='client', lazy="subquery")
 
     def __str__(self):
         return str(self.phone)
@@ -721,4 +722,3 @@ class Push(Base):
 
 
 # модель жетонов
-# test

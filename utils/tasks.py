@@ -24,7 +24,7 @@ async def check_tasks(session, task_type, company=None, client=None, referral=No
                     new_transaction_competition = TransactionCompetition(name=task.name, task=task, client=client)
                     session.add(new_transaction_competition)
 
-                    await notify(client, 'tasks', f'Вы присоединились к компании {company} и получаете вознаграждение {task.reward} {task.reward_type}')
+                    await notify(client, 'tasks', "Присоединение", f'Вы присоединились к компании {company} и получаете вознаграждение {task.reward} {task.reward_type}')
     elif task_type == "buy":
         pass
     elif task_type == "invite":
@@ -99,7 +99,7 @@ async def check_tasks(session, task_type, company=None, client=None, referral=No
                             # Если количество равно требуемому, отправляем уведомление и создаем транзакцию
                             if new_quantity == int(task.quantity):
                                 await notify(client, 'tasks',
-                                             f'Вы выполнили задания и зашли в приложение {task.quantity} раз')
+                                             f'Вы выполнили задания и зашли в приложение {task.quantity} раз', session)
 
                                 new_transaction = Transaction(
                                     client=client,

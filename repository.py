@@ -324,7 +324,7 @@ class CompanyRepository:
                 added_welcome_balls = Balls(company_id=company.id, ball=int(company.welcome_balls), hide_ball=0)
                 client.balls.append(added_welcome_balls)
 
-            await check_tasks(session, 'join', company, client, )
+            await check_tasks(session, 'join', company, client)
 
             if not client or not company:
                 return False
