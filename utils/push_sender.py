@@ -8,6 +8,7 @@ async def send_notification(client, title, body):
             "Accept": "application/json",
             "Accept-Encoding": "gzip, deflate",
             "Content-Type": "application/json",
+            "Host": "exp.host"
         }
         payload = {
             "to": client.push_token,
