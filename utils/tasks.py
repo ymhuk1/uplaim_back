@@ -99,7 +99,7 @@ async def check_tasks(session, task_type, company=None, client=None, referral=No
                             # Если количество равно требуемому, отправляем уведомление и создаем транзакцию
                             if new_quantity == int(task.quantity):
                                 await notify(client, 'tasks',
-                                             f'Вы выполнили задания и зашли в приложение {task.quantity} раз', session)
+                                             "Вход в приложение", f'Вы выполнили задания и зашли в приложение {task.quantity} раз')
 
                                 new_transaction = Transaction(
                                     client=client,
