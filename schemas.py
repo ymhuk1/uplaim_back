@@ -245,7 +245,7 @@ class ReviewCreateMessage(BaseModel):
     status: Optional[str] = None
 
 
-class Notification(BaseModel):
+class Notification_schema(BaseModel):
     id: int
     type: Optional[str] = None
     icon_type: Optional[str] = None
@@ -285,7 +285,7 @@ class ClientOut(BaseModel):
     tariff_day: Optional[str] = None
     tariff_end: datetime | None
     transactions: List[TransactionModel] = []
-    notify: List[Notification] = []
+    notify: List[Notification_schema] = []
     referrals: List[Referrals] = []
     # given_clients: Optional[str] = None
     # received_clients: Optional[str] = None

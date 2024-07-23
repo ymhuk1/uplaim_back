@@ -1,4 +1,6 @@
 import hashlib
+from typing import List, Optional
+
 import jwt
 import random
 import string
@@ -6,11 +8,17 @@ import string
 from datetime import datetime, timedelta
 
 from sqlalchemy import select, func, cast, Float, and_, desc
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
-from models import *
+from models import Tariff, Client, Reward, City, PaymentMethod, Coupon, Company, Review, Story, Category, \
+    SubscribedTariff, Referral, Exchange, Competition, Ticket, Prize, TransactionCompetition, Task, Question, Franchise, \
+    Notification
 from utils.tasks import check_tasks
-from schemas import *
+from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
+    CompanyModel, ClientEditDataIn, AssociateCompany, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
+    GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, UpdateExchange, \
+    NotifyData, FranchiseData
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
@@ -989,34 +997,37 @@ class ReferralRepository:
 class NotificationsRepository:
     @classmethod
     async def get_notifications(cls, data: NotifyData):
-        async with (new_session() as session):
-            if data.date:
-                created_on_datetime = datetime.strptime(data.date, "%a, %d %b %Y %H:%M:%S %Z")
-            else:
-                created_on_datetime = datetime.strptime("Thu, 01 Mar 2000 00:00:00 GMT", "%a, %d %b %Y %H:%M:%S %Z")
+        try:
+            async with (new_session() as session):
+                if data.date:
+                    created_on_datetime = datetime.strptime(data.date, "%a, %d %b %Y %H:%M:%S %Z")
+                else:
+                    created_on_datetime = datetime.strptime("Thu, 01 Mar 2000 00:00:00 GMT", "%a, %d %b %Y %H:%M:%S %Z")
 
-            if data.is_read == "true":
+                # Fetch all notifications for the client
                 result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
                 notifications = result.scalars().all()
 
-                for notification in notifications:
-                    if notification.type == data.type_notify and notification.created_on.date() == created_on_datetime.date():
-                        notification.read = True
-                        await session.commit()
-
-            # ---//---
-            if data.is_read == "false":
-                result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
-                notification = result.scalars().all()
-
-                for notification_one in notification:
-                    notification_one.read = False
+                if data.is_read == "true":
+                    for notification in notifications:
+                        if notification.type == data.type_notify and notification.created_on.date() == created_on_datetime.date():
+                            notification.read = True
                     await session.commit()
-            # ---//---
-            result = await session.execute(select(Notification).where(Notification.client_id == data.client_id))
-            notification = result.scalars().all()
 
-            return {"notifications": notification}
+                elif data.is_read == "false":
+                    for notification in notifications:
+                        notification.read = False
+                    await session.commit()
+
+                return {"notifications": notifications}
+
+        except SQLAlchemyError as e:
+            print(f"Database error: {e}")
+            return {"error": "Database error occurred."}
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return {"error": "An unexpected error occurred."}
 
 
 class CompetitionRepository:
