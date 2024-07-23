@@ -257,12 +257,17 @@ class ClientRepository:
 class CompanyRepository:
     @classmethod
     async def get_all_companies(cls):
-        async with new_session() as session:
+        async with (new_session() as session):
             result = await session.execute(select(Company).options(joinedload(Company.category)))
             companies = result.scalars().all()
+
             for company in companies:
                 company.external_links = []
                 company.another_photo = []
+                company.cashback = {
+                    "cashback": company.cashback_company
+                }
+
             return companies
 
     @classmethod
@@ -274,6 +279,7 @@ class CompanyRepository:
 
             company = await session.execute(
                 select(Company).where(Company.id == company_id).options(joinedload(Company.category)))
+
 
             company = company.scalars().first()
             if company:
