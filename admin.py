@@ -2,6 +2,7 @@ import random
 import string
 
 import wtforms
+from fastapi import File
 from sqladmin import ModelView
 from sqladmin.authentication import AuthenticationBackend
 from sqlalchemy import select, func
@@ -123,8 +124,17 @@ class CompanyAdmin(ModelView, model=Company):
         }
     }
     form_overrides = {
-        "color": wtforms.ColorField
+        "color": wtforms.ColorField,
     }
+
+    async def on_model_change(self, form, model, is_created, request):
+        if form['main_photo'].size is None:
+            print(form['main_photo'].size)
+            del form['main_photo']
+
+        await super().on_model_change(form, model, is_created, request)
+
+
 
 
 class NewsAdmin(ModelView, model=News):

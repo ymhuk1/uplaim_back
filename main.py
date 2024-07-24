@@ -2,7 +2,7 @@ import asyncio
 import os
 
 import schedule
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, UploadFile, File, Depends
 from fastapi.responses import FileResponse, HTMLResponse
 
 from contextlib import asynccontextmanager
@@ -16,8 +16,8 @@ from admin import CityAdmin, UserAdmin, ClientAdmin, CategoryAdmin, CompanyAdmin
     BallsAdmin, CouponAdmin, TariffAdmin, SubscribedTariffAdmin, NotificationAdmin, ReferralAdmin, RewardAdmin, \
     ExchangeAdmin, TransactionAdmin, CompetitionAdmin, PrizeAdmin, TicketAdmin, TaskAdmin, TransactionCompetitionAdmin, \
     StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin, PushAdmin
-from db import engine
-from models import RevocationOfPrivacy
+from db import engine, new_session
+from models import RevocationOfPrivacy, Company
 from router.auth import auth_router as auth_router
 from router.category import category_router
 from router.company import company_router as company_router
