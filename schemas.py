@@ -130,6 +130,7 @@ class CouponModel(BaseModel):
     link: Optional[str] = None
     date: Optional[datetime] = None
     color: Optional[str] = None
+    category: Optional[str] = None
 
 
 class CityModel(BaseModel):

@@ -325,6 +325,9 @@ class CompanyRepository:
 
                 company.news.sort(key=lambda news: news.created_at, reverse=True)
 
+                for coupon in company.coupons:
+                    coupon.category = coupon.company_category.name
+
                 return company
             else:
                 return None
