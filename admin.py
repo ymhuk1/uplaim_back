@@ -129,7 +129,6 @@ class CompanyAdmin(ModelView, model=Company):
 
     async def on_model_change(self, form, model, is_created, request):
         if form['main_photo'].size is None:
-            print(form['main_photo'].size)
             del form['main_photo']
 
         await super().on_model_change(form, model, is_created, request)

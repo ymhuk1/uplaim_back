@@ -12,7 +12,6 @@ redirect_router = APIRouter(
 @redirect_router.get("")
 async def redirect_referral(referral: Optional[str] = Query(None, alias="referral"),
                             user_agent: Annotated[Union[str, None], Header()] = None):
-    print(user_agent)
     if referral:
         ios_app_url = f'uplaim://app?referral={referral}'
         android_app_url = f'intent://app?referral={referral}#Intent;scheme=uplaim;package=com.viktorka.uplaim;end'
