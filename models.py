@@ -9,7 +9,7 @@ from fastapi_storages.integrations.sqlalchemy import FileType
 from config import STATIC_FOLDER, STATIC_FOLDER_CATEGORIES, STATIC_FOLDER_COMPANIES_MAIN, \
     STATIC_FOLDER_COMPANIES_ANOTHER, STATIC_FOLDER_NEWS, STATIC_FOLDER_TARIFFS, STATIC_FOLDER_STORIES_PHOTO, \
     STATIC_FOLDER_STORIES_ICON, STATIC_FOLDER_COMPETITIONS, STATIC_FOLDER_PRIZES, STATIC_FOLDER_TASKS, \
-    STATIC_FOLDER_CLIENTS
+    STATIC_FOLDER_CLIENTS, STATIC_FOLDER_PRODUCTS
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 
@@ -73,6 +73,22 @@ client_tasks = Table(
     Column('client_id', Integer, ForeignKey('clients.id'), primary_key=True),
     Column('quantity', String),
     Column('done', String),
+)
+
+product_baskets = Table(
+    'product_baskets',
+    Base.metadata,
+    Column('product_id', Integer, ForeignKey('products.id'), primary_key=True),
+    Column('basket_id', Integer, ForeignKey('baskets.id'), primary_key=True),
+    Column('quantity', String),
+)
+
+product_orders = Table(
+    'product_orders',
+    Base.metadata,
+    Column('product_id', Integer, ForeignKey('products.id'), primary_key=True),
+    Column('order_id', Integer, ForeignKey('orders.id'), primary_key=True),
+    Column('quantity', String),
 )
 
 
@@ -155,6 +171,12 @@ class Client(Base):
     coupons = relationship("Coupon", back_populates="client", lazy="subquery")
     payment_methods = relationship("PaymentMethod", back_populates="client", lazy="subquery")
     push = relationship('Push', back_populates='client', lazy="subquery")
+
+    favorites = relationship("Favorite", back_populates="client")
+    baskets = relationship("Basket", back_populates="client")
+    orders = relationship("Order", back_populates="client")
+
+    addresses = relationship("ClientAddress", back_populates="client")
 
     def __str__(self):
         return str(self.phone)
@@ -265,6 +287,13 @@ class Company(Base):
     exchange_companies = relationship('Exchange', secondary="exchange_companies", back_populates="taker_companies", lazy="subquery")
 
     reviews_rating = Column(Float, nullable=True)
+
+    delivery = Column(Boolean, default=False)
+    time_to_delivery = Column(String, nullable=True)
+    products = relationship('Product', back_populates='company', lazy="subquery")
+    favorites = relationship('Favorite', back_populates='company', lazy="subquery")
+    orders = relationship('Order', back_populates='company', lazy="subquery")
+    baskets = relationship('Basket', back_populates='company')
 
     def __str__(self):
         return str(self.name)
@@ -718,6 +747,106 @@ class Push(Base):
     client = relationship('Client')
     created_at = Column(DateTime, default=datetime.utcnow())
     updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+class Product(Base):
+    __tablename__ = 'products'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    price = Column(Integer)
+    unit = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    weight = Column(String, nullable=True)
+    photo = Column(FileType(storage=FileSystemStorage(path=STATIC_FOLDER_PRODUCTS)), nullable=True)
+    quantity = Column(Integer)
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company = relationship('Company')
+    category_id = Column(Integer, ForeignKey('products_category.id'))
+    category = relationship('ProductsCategory')
+    favorites = relationship('Favorite', back_populates='product', lazy="subquery")
+    baskets = relationship('Basket', secondary="product_baskets", back_populates="products", lazy="subquery")
+    orders = relationship('Order', secondary="product_orders", back_populates="products", lazy="subquery")
+
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.name)
+
+
+class ProductsCategory(Base):
+    __tablename__ = 'products_category'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    products = relationship('Product', back_populates='category')
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+    def __str__(self):
+        return str(self.name)
+
+
+class Favorite(Base):
+    __tablename__ = 'favorites'
+    id = Column(Integer, primary_key=True)
+    is_company = Column(Boolean, default=False)
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company = relationship("Company", back_populates="favorites")
+    is_product = Column(Boolean, default=False)
+    product_id = Column(Integer, ForeignKey('products.id'))
+    product = relationship("Product", back_populates="favorites")
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client", back_populates="favorites")
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+class Basket(Base):
+    __tablename__ = 'baskets'
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client", back_populates="baskets")
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company = relationship("Company", back_populates="baskets")
+    products = relationship('Product', secondary="product_baskets", back_populates="baskets", lazy="subquery")
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+class Order(Base):
+    __tablename__ = 'orders'
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client", back_populates="orders")
+    amount = Column(Float(2))
+    promocode = Column(String)
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company = relationship("Company", back_populates="orders")
+    products = relationship('Product', secondary="product_orders", back_populates="orders", lazy="subquery")
+    write_of_balls = Column(String)
+    amount_of_delivery = Column(Float(2))
+    accrual_of_balls = Column(String)
+    status = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
+class ClientAddress(Base):
+    __tablename__ = 'client_addresses'
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey('clients.id'))
+    client = relationship("Client", back_populates="addresses")
+    address = Column(String)
+    oksm_code = Column(String)
+    city = Column(String)
+    street = Column(String)
+    house = Column(String)
+    flat = Column(String)
+    entrance = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    updated_at = Column(DateTime, default=datetime.utcnow())
+
+
 
 
 # модель жетонов

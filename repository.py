@@ -1,5 +1,6 @@
 import hashlib
-from typing import List, Optional
+import re
+from typing import List, Optional, Dict, Type
 
 import jwt
 import random
@@ -7,18 +8,18 @@ import string
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, func, cast, Float, and_, desc
+from sqlalchemy import select, func, cast, Float, and_, desc, distinct, update, insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
 from models import Tariff, Client, Reward, City, PaymentMethod, Coupon, Company, Review, Story, Category, \
     SubscribedTariff, Referral, Exchange, Competition, Ticket, Prize, TransactionCompetition, Task, Question, Franchise, \
-    Notification
+    Notification, Favorite, Product, ProductsCategory, Basket, product_baskets, ClientAddress
 from utils.tasks import check_tasks
 from schemas import SendPhoneNumberIn, SendPhoneNumberOut, VerifySMSDataIn, VerifySMSDataOut, PasswordData, LoginData, \
     CompanyModel, ClientEditDataIn, AssociateCompany, ReviewCreate, ReviewCreateMessage, CategoryCompanies, \
     GetSubscribedTariffs, TariffModel, AssociateTariff, AssociateTariffOut, ExchangeCreateIn, UpdateExchange, \
-    NotifyData, FranchiseData
+    NotifyData, FranchiseData, DeliveryCompanies, FavoritesInDelivery, DeliveryCompany, AddProductInBasket, AddAddress
 
 from utils.calculate_cashback import calculate_cashback
 from utils.calculate_max_balls import calculate_max_balls
@@ -196,7 +197,6 @@ class ClientRepository:
             result = await session.execute(select(City).where(City.name == data.city))
             city = result.scalars().first()
 
-
             if client:
                 if data.name: client.name = data.name
                 if data.last_name: client.last_name = data.last_name
@@ -290,7 +290,6 @@ class CompanyRepository:
 
             company = await session.execute(
                 select(Company).where(Company.id == company_id).options(joinedload(Company.category)))
-
 
             company = company.scalars().first()
             if company:
@@ -436,7 +435,8 @@ class StoryRepository:
     @classmethod
     async def get_stories_search(cls):
         async with new_session() as session:
-            stories_in_search = (await session.execute(select(Story).where(Story.show_in_search == True).order_by(desc(Story.created_at)))).scalars().all()
+            stories_in_search = (await session.execute(
+                select(Story).where(Story.show_in_search == True).order_by(desc(Story.created_at)))).scalars().all()
             return stories_in_search
 
     @classmethod
@@ -1268,3 +1268,245 @@ class FranchiseRepository:
             session.add(franchise)
             await session.commit()
             return {"message": "Запрос принят", "status": "success"}
+
+
+class DeliveryRepository:
+    @classmethod
+    async def get_delivery_companies(cls, data: DeliveryCompanies) -> list[CompanyModel] | None:
+        async with new_session() as session:
+            if data.category_id:
+                companies = (await session.execute(select(Company).where(Company.category_id == data.category_id,
+                                                                         Company.delivery == True))).scalars().all()
+            elif data.term:
+                companies = (
+                    await session.execute(select(Company).where(Company.name.ilike(f'%{data.term}%')))).scalars().all()
+            else:
+                companies = (await session.execute(select(Company).where(Company.delivery == True))).scalars().all()
+
+            for company in companies:
+                company.external_links = []
+                company.another_photo = []
+            return companies
+
+    @classmethod
+    async def add_favorite(cls, data: FavoritesInDelivery) -> dict[str, str]:
+        async with new_session() as session:
+            if data.company_id:
+                company = (
+                    await session.execute(select(Company).where(Company.id == data.company_id))).scalars().first()
+                if company:
+                    favorite_company = Favorite(
+                        client_id=data.client_id,
+                        company_id=data.company_id,
+                        is_company=True
+                    )
+                    session.add(favorite_company)
+                    await session.commit()
+                    return {"message": "Компания добавлена в избранное"}
+                else:
+                    return {"message": "Компания не найдена"}
+            elif data.product_id:
+                product = (
+                    await session.execute(select(Product).where(Product.id == data.product_id))).scalars().first()
+                if product:
+                    favorite_product = Favorite(
+                        client_id=data.client_id,
+                        product_id=data.product_id,
+                        is_product=True
+                    )
+                    session.add(favorite_product)
+                    await session.commit()
+                    return {"message": "Товар добавлен в избранное"}
+                else:
+                    return {"message": "Товар не найден"}
+            else:
+                return {"message": "Товар или компания не найдены"}
+
+    @classmethod
+    async def get_delivery_company(cls, data: DeliveryCompany):
+        async with new_session() as session:
+
+            if data.company_id:
+                company = (
+                    await session.execute(select(Company).where(Company.id == data.company_id))).scalars().first()
+
+                categories = (
+                    await session.execute(
+                        select(ProductsCategory)
+                        .distinct(ProductsCategory.id)
+                        .join(Product, ProductsCategory.id == Product.category_id)
+                        .where(Product.company_id == data.company_id)
+                    )
+                ).scalars().all()
+
+                products = []
+
+                if data.category_id == 0:
+                    products_query = (
+                        select(Product)
+                        .join(Favorite, Favorite.product_id == Product.id)
+                        .where(Favorite.client_id == data.client_id)
+                        .where(Favorite.is_product == True)
+                        .where(Product.company_id == data.company_id)
+                        .options(joinedload(Product.category))
+                    )
+                    products = (await session.execute(products_query)).scalars().all()
+
+                elif data.category_id:
+                    products_query = (
+                        select(Product)
+                        .where(Product.company_id == data.company_id)
+                        .where(Product.category_id == data.category_id)
+                        .options(joinedload(Product.category))
+                    )
+                    products = (await session.execute(products_query)).scalars().all()
+
+                else:
+                    products_query = (
+                        select(Product)
+                        .where(Product.company_id == data.company_id)
+                        .options(joinedload(Product.category))
+                    )
+                    products = (await session.execute(products_query)).scalars().all()
+
+                favorite = {
+                    "updated_at": "2024-08-10T22:03:38.604466",
+                    "id": 0,
+                    "name": "Избранное",
+                    "created_at": "2024-08-10T22:03:38.604464"
+                }
+                categories.insert(0, favorite)
+
+                return {
+                    "company": company,
+                    "products": products,
+                    "categories": categories,
+                }
+
+    @classmethod
+    async def add_product_in_basket(cls, data: AddProductInBasket):
+        async with new_session() as session:
+            client = (await session.execute(select(Client).where(Client.id == data.client_id))).scalars().first()
+            product = (await session.execute(select(Product).where(Product.id == data.product_id))).scalars().first()
+            company = (await session.execute(select(Company).where(Company.id == data.company_id))).scalars().first()
+            basket = (await session.execute(select(Basket).where(Basket.client == client, Basket.company == company))).scalars().first()
+
+            if not client or not product or not company:
+                return False
+
+            if basket:
+                # Проверяем, есть ли уже этот продукт в корзине
+                product_in_basket = (await session.execute(
+                    select(product_baskets).where(product_baskets.c.basket_id == basket.id,
+                                                  product_baskets.c.product_id == product.id)
+                )).first()
+
+                if product_in_basket:
+                    # Увеличиваем количество продукта в корзине
+                    new_quantity = int(product_in_basket.quantity) + 1
+                    await session.execute(
+                        update(product_baskets).where(
+                            product_baskets.c.basket_id == basket.id,
+                            product_baskets.c.product_id == product.id
+                        ).values(quantity=str(new_quantity))
+                    )
+                else:
+                    # Добавляем новый продукт в корзину
+                    await session.execute(
+                        insert(product_baskets).values(basket_id=basket.id, product_id=product.id,
+                                                       quantity="1")
+                    )
+            else:
+                # Создаем новую корзину для клиента и компании
+                basket = Basket(client=client, company=company)
+                session.add(basket)
+                await session.flush()  # Чтобы получить ID новой корзины
+
+                # Добавляем продукт в новую корзину
+                await session.execute(
+                    insert(product_baskets).values(basket_id=basket.id, product_id=product.id, quantity="1")
+                )
+
+            await session.commit()  # Сохраняем изменения
+            return {"status": "success", "message": "Товар успешно добавлен"}
+
+    @classmethod
+    async def get_baskets(cls, client_id: int):
+        async with new_session() as session:
+            # Запрос для получения корзин клиента с продуктами, их количеством, фото, весом, названием компании и id корзины
+            baskets_data = await session.execute(
+                select(
+                    Basket.id,
+                    Company.name,
+                    Product.id,
+                    Product.name,
+                    Product.photo,
+                    Product.weight,
+                    product_baskets.c.quantity
+                ).join(Basket, Company.id == Basket.company_id)
+                .join(product_baskets, Basket.id == product_baskets.c.basket_id)
+                .join(Product, product_baskets.c.product_id == Product.id)
+                .where(Basket.client_id == client_id)
+            )
+
+            # Группируем корзины по названию компании с продуктами, их количеством, фото, весом и id
+            baskets = {}
+            for basket_id, company_name, product_id, product_name, photo, weight, quantity in baskets_data:
+                if company_name not in baskets:
+                    baskets[company_name] = {
+                        "basket_id": basket_id,
+                        "products": []
+                    }
+                baskets[company_name]["products"].append({
+                    "product_id": product_id,
+                    "product_name": product_name,
+                    "photo": photo,
+                    "weight": weight,
+                    "quantity": quantity
+                })
+
+            return baskets
+
+    @classmethod
+    async def add_address(cls, data: AddAddress):
+        async with new_session() as session:
+            client = (await session.execute(select(Client).where(Client.id == data.client_id))).scalars().first()
+            if not client:
+                return {"status": "error", "message": "Клиент не найден"}
+
+            address_pattern = re.compile(
+                r'(?P<city>\w+)'  # Город (обязательная часть)
+                r'(?:,\s*(?P<street>[\w\s]+)\s*)?'  # Улица (необязательная часть)
+                r'(?:,\s*(?:д\s*\.?|дом\s*\.?)?\s*(?P<house>\d+)\s*)?'  # Дом (необязательная часть)
+                r'(?:,\s*(?:п\s*\.?|подъезд\s*\.?)?\s*(?P<entrance>\d+)\s*)?'  # Подъезд (необязательная часть)
+                r'(?:,\s*(?:кв\s*\.?|квартира\s*\.?)?\s*(?P<flat>\d+)\s*)?'  # Квартира (необязательная часть)
+            )
+            match = address_pattern.match(data.address)
+
+            if not match:
+                return {"status": "error", "message": "Неправильный формат адреса"}
+
+            address_data = match.groupdict()
+
+            city = data.city or address_data.get('city')
+            street = data.street or address_data.get('street')
+            house = data.house or address_data.get('house')
+            entrance = data.entrance or address_data.get('entrance')
+            flat = data.flat or address_data.get('flat')
+
+            new_address = ClientAddress(
+                client_id=data.client_id,
+                address=data.address,
+                oksm_code="...",
+                city=city,
+                street=street,
+                house=house,
+                entrance=entrance,
+                flat=flat
+            )
+
+            session.add(new_address)
+            await session.commit()
+            return new_address
+
+

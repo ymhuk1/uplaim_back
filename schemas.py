@@ -382,3 +382,63 @@ class NotifyData(BaseModel):
 class FranchiseData(BaseModel):
     name: str
     phone: str
+
+
+class DeliveryCompanies(BaseModel):
+    category_id: Optional[int] = None
+    term: Optional[str] = None
+
+
+class FavoritesInDelivery(BaseModel):
+    client_id: int
+    company_id: Optional[int] = None
+    product_id: Optional[int] = None
+
+
+class DeliveryCompany(BaseModel):
+    company_id: int
+    client_id: Optional[int] = None
+    category_id: Optional[int] = None
+    favorite: Optional[bool] = None
+
+
+class Products(BaseModel):
+    id: int
+    name: Optional[str] = None
+    price: Optional[int] = None
+    unit: Optional[str] = None
+    description: Optional[str] = None
+    quantity: Optional[int] = None
+    company_id: Optional[int] = None
+    category_id: Optional[int] = None
+
+
+class ProductsCategories(BaseModel):
+    id: int
+    name: str
+
+
+class DeliveryCompany1(BaseModel):
+    name: Optional[str] = None
+    max_pay_point_company: Optional[str] = None
+    cashback_company: Optional[str] = None
+    tags: Optional[List[TagModel]] = []
+    reviews_rating: Optional[float] = None
+    delivery: Optional[bool] = None
+    time_to_delivery: Optional[str] = None
+
+
+class AddProductInBasket(BaseModel):
+    product_id: int
+    client_id: int
+    company_id: int
+
+
+class AddAddress(BaseModel):
+    client_id: int
+    address: str
+    city: Optional[str] = None
+    street: Optional[str] = None
+    house: Optional[str] = None
+    flat: Optional[str] = None
+    entrance: Optional[str] = None

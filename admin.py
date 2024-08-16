@@ -12,7 +12,7 @@ from starlette.responses import RedirectResponse
 from db import new_session
 from models import User, City, Client, Category, Company, News, Tag, Review, Balls, Coupon, Tariff, SubscribedTariff, \
     Notification, Referral, Reward, Exchange, Transaction, Competition, Prize, Ticket, Task, TransactionCompetition, \
-    Story, Setting, Question, Push
+    Story, Setting, Question, Push, Product, ProductsCategory, Favorite, Basket, Order, ClientAddress
 from utils.auth_user import get_password_hash, authenticate_user, create_access_token
 
 
@@ -78,7 +78,9 @@ class CityAdmin(ModelView, model=City):
 
 class ClientAdmin(ModelView, model=Client):
     column_list = [Client.id, Client.name, Client.phone, Client.tariff]
-    form_excluded_columns = [Client.created_at, Client.updated_at, Client.reviews, Client.balls, Client.transactions, Client.notify, Client.referrals, Client.given_clients, Client.received_clients, Client.competitions, Client.tasks]
+    form_excluded_columns = [Client.created_at, Client.updated_at, Client.reviews, Client.balls, Client.transactions,
+                             Client.notify, Client.referrals, Client.given_clients, Client.received_clients,
+                             Client.competitions, Client.tasks]
     name = "Клиент"
     name_plural = "Клиенты"
     icon = "fa-solid fa-users"
@@ -112,8 +114,12 @@ class CategoryAdmin(ModelView, model=Category):
 
 class CompanyAdmin(ModelView, model=Company):
     column_list = [Company.id, Company.name, Company.category, Company.news]
-    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls, Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies, Company.reviews_rating, Company.holder_company, Company.another_photo, Company.cashback, Company.max_pay_point]
-    column_details_exclude_list = [Company.category_id, Company.another_photo, Company.external_links, Company.cashback, Company.max_pay_point]
+    form_excluded_columns = [Company.created_at, Company.updated_at, Company.news, Company.reviews, Company.balls,
+                             Company.coupons, Company.holder_company, Company.taker_company, Company.exchange_companies,
+                             Company.reviews_rating, Company.holder_company, Company.another_photo, Company.cashback,
+                             Company.max_pay_point]
+    column_details_exclude_list = [Company.category_id, Company.another_photo, Company.external_links, Company.cashback,
+                                   Company.max_pay_point]
     name = "Компания"
     name_plural = "Компании"
     icon = "fa-solid fa-vcard"
@@ -132,8 +138,6 @@ class CompanyAdmin(ModelView, model=Company):
             del form['main_photo']
 
         await super().on_model_change(form, model, is_created, request)
-
-
 
 
 class NewsAdmin(ModelView, model=News):
@@ -168,7 +172,7 @@ class ReviewAdmin(ModelView, model=Review):
     form_args = {
         "rating": {
             "label": "Rating",
-            "choices": [(1, '1'), (2, '2'), (3, '3'), (4, '4'),(5, '5')]
+            "choices": [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
         },
     }
 
@@ -258,7 +262,8 @@ class ExchangeAdmin(ModelView, model=Exchange):
     form_args = {
         "type_deal": {
             "label": "Type deal",
-            "choices": [('buy', 'Купить'), ('exchange', 'Обменять'), ('exchange_sell', 'Обменять/продать'), ('sell', 'Продать')]
+            "choices": [('buy', 'Купить'), ('exchange', 'Обменять'), ('exchange_sell', 'Обменять/продать'),
+                        ('sell', 'Продать')]
         },
         "status": {
             "label": "Status",
@@ -269,7 +274,8 @@ class ExchangeAdmin(ModelView, model=Exchange):
 
 
 class TransactionAdmin(ModelView, model=Transaction):
-    column_list = [Transaction.id, Transaction.balance, Transaction.up_balance, Transaction.client, Transaction.transaction_type, Transaction.status]
+    column_list = [Transaction.id, Transaction.balance, Transaction.up_balance, Transaction.client,
+                   Transaction.transaction_type, Transaction.status]
     form_excluded_columns = [Transaction.created_at, Transaction.updated_at]
     name = "Транзакция"
     name_plural = "Транзакции"
@@ -291,8 +297,10 @@ class TransactionAdmin(ModelView, model=Transaction):
 
 
 class CompetitionAdmin(ModelView, model=Competition):
-    column_list = [Competition.id, Competition.name, Competition.prizes, Competition.quantity_ticket, Competition.date_end]
-    form_excluded_columns = [Competition.created_at, Competition.updated_at, Competition.clients, Competition.prizes, Competition.tickets]
+    column_list = [Competition.id, Competition.name, Competition.prizes, Competition.quantity_ticket,
+                   Competition.date_end]
+    form_excluded_columns = [Competition.created_at, Competition.updated_at, Competition.clients, Competition.prizes,
+                             Competition.tickets]
     name = "Конкурс"
     name_plural = "Конкурсы"
     icon = "fa-solid fa-cubes"
@@ -362,7 +370,8 @@ class TaskAdmin(ModelView, model=Task):
         },
         "type": {
             "label": "Task Type",
-            "choices": [('join', 'Присоединение'), ('buy', 'Покупка'), ('invite', 'Приглашение'), ('login', 'Вход'), ('exchange', 'Сделка'), ('tariff', 'Тариф'),]
+            "choices": [('join', 'Присоединение'), ('buy', 'Покупка'), ('invite', 'Приглашение'), ('login', 'Вход'),
+                        ('exchange', 'Сделка'), ('tariff', 'Тариф'), ]
         },
         "status": {
             "label": "Status",
@@ -414,4 +423,52 @@ class PushAdmin(ModelView, model=Push):
     form_excluded_columns = [Push.created_at, Push.updated_at]
     name = "Пуш"
     name_plural = "Пуши"
+    icon = "fa-solid fa-sliders"
+
+
+class ProductAdmin(ModelView, model=Product):
+    column_list = [Product.id]
+    form_excluded_columns = [Product.created_at, Product.updated_at]
+    name = "Товар"
+    name_plural = "Товары"
+    icon = "fa-solid fa-sliders"
+
+
+class ProductsCategoryAdmin(ModelView, model=ProductsCategory):
+    column_list = [ProductsCategory.id]
+    form_excluded_columns = [ProductsCategory.created_at, ProductsCategory.updated_at]
+    name = "Категория товаров"
+    name_plural = "Категории товаров"
+    icon = "fa-solid fa-sliders"
+
+
+class FavoriteAdmin(ModelView, model=Favorite):
+    column_list = [Favorite.id]
+    form_excluded_columns = [Favorite.created_at, Favorite.updated_at]
+    name = "Избранное"
+    name_plural = "Избранные"
+    icon = "fa-solid fa-sliders"
+
+
+class BasketAdmin(ModelView, model=Basket):
+    column_list = [Basket.id]
+    form_excluded_columns = [Basket.created_at, Basket.updated_at]
+    name = "Корзина"
+    name_plural = "Корзины"
+    icon = "fa-solid fa-sliders"
+
+
+class OrderAdmin(ModelView, model=Order):
+    column_list = [Order.id]
+    form_excluded_columns = [Order.created_at, Order.updated_at]
+    name = "Заказ"
+    name_plural = "Заказы"
+    icon = "fa-solid fa-sliders"
+
+
+class ClientAddressAdmin(ModelView, model=ClientAddress):
+    column_list = [ClientAddress.id]
+    form_excluded_columns = [ClientAddress.created_at, ClientAddress.updated_at]
+    name = "Адреса клиента"
+    name_plural = "Адреса клиентов"
     icon = "fa-solid fa-sliders"

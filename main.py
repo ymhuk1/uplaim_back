@@ -15,7 +15,8 @@ from fastapi.templating import Jinja2Templates
 from admin import CityAdmin, UserAdmin, ClientAdmin, CategoryAdmin, CompanyAdmin, NewsAdmin, TagAdmin, ReviewAdmin, \
     BallsAdmin, CouponAdmin, TariffAdmin, SubscribedTariffAdmin, NotificationAdmin, ReferralAdmin, RewardAdmin, \
     ExchangeAdmin, TransactionAdmin, CompetitionAdmin, PrizeAdmin, TicketAdmin, TaskAdmin, TransactionCompetitionAdmin, \
-    StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin, PushAdmin
+    StoryAdmin, AdminAuth, SettingAdmin, QuestionAdmin, PushAdmin, ProductAdmin, ProductsCategoryAdmin, FavoriteAdmin, \
+    BasketAdmin, OrderAdmin, ClientAddressAdmin
 from db import engine, new_session
 from models import RevocationOfPrivacy, Company
 from router.auth import auth_router as auth_router
@@ -23,6 +24,7 @@ from router.category import category_router
 from router.company import company_router as company_router
 from router.client import client_router
 from router.competition import competition_router
+from router.delivery import delivery_router
 from router.exchange import exchange_router
 from router.notification import notify_router
 from router.redirect_referral import redirect_router
@@ -61,6 +63,7 @@ app.include_router(referral_router)
 app.include_router(notify_router)
 app.include_router(competition_router)
 app.include_router(redirect_router)
+app.include_router(delivery_router)
 
 templates = Jinja2Templates(directory="templates")
 
@@ -133,6 +136,12 @@ admin.add_view(StoryAdmin)
 admin.add_view(SettingAdmin)
 admin.add_view(QuestionAdmin)
 admin.add_view(PushAdmin)
+admin.add_view(ProductAdmin)
+admin.add_view(ProductsCategoryAdmin)
+admin.add_view(FavoriteAdmin)
+admin.add_view(BasketAdmin)
+admin.add_view(OrderAdmin)
+admin.add_view(ClientAddressAdmin)
 
 
 @app.on_event("startup")
