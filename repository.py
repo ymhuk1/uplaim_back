@@ -1271,6 +1271,21 @@ class FranchiseRepository:
 
 
 class DeliveryRepository:
+
+    @classmethod
+    async def get_delivery_categories(cls):
+        async with new_session() as session:
+            result = await session.execute(
+                select(Category)
+                .distinct()  # выбираем только уникальные категории
+                .join(Company)  # соединяем с компаниями
+                .where(Company.delivery == True)  # фильтруем компании с delivery=True
+            )
+
+            categories = result.scalars().all()
+            return categories
+
+
     @classmethod
     async def get_delivery_companies(cls, data: DeliveryCompanies) -> list[CompanyModel] | None:
         async with new_session() as session:

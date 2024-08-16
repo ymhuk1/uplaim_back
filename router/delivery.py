@@ -10,6 +10,15 @@ delivery_router = APIRouter(
 )
 
 
+@delivery_router.get('/delivery_categories')
+async def delivery_categories():
+    delivery_categories = await DeliveryRepository.get_delivery_categories()
+
+    if not delivery_categories:
+        raise HTTPException(status_code=404, detail="Нет категорий с доставкой")
+    return delivery_categories
+
+
 @delivery_router.get('/delivery_companies', response_model=list[CompanyModel])
 async def get_company_categories(data: DeliveryCompanies = Depends()):
     delivery_companies = await DeliveryRepository.get_delivery_companies(data)
