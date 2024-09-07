@@ -1457,6 +1457,7 @@ class DeliveryRepository:
                     Product.name,
                     Product.photo,
                     Product.weight,
+                    Product.price,
                     product_baskets.c.quantity
                 ).join(Basket, Company.id == Basket.company_id)
                 .join(product_baskets, Basket.id == product_baskets.c.basket_id)
@@ -1464,9 +1465,8 @@ class DeliveryRepository:
                 .where(Basket.client_id == client_id)
             )
 
-            # Группируем корзины по названию компании с продуктами, их количеством, фото, весом и id
             baskets = {}
-            for basket_id, company_name, product_id, product_name, photo, weight, quantity in baskets_data:
+            for basket_id, company_name, product_id, product_name, photo, weight, quantity, product_price in baskets_data:
                 if company_name not in baskets:
                     baskets[company_name] = {
                         "basket_id": basket_id,
@@ -1477,7 +1477,8 @@ class DeliveryRepository:
                     "product_name": product_name,
                     "photo": photo,
                     "weight": weight,
-                    "quantity": quantity
+                    "quantity": quantity,
+                    "price": product_price
                 })
 
             return baskets

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.viktorka.uplaim",
+      "sha256_cert_fingerprints": [
+        "B5:58:A9:2B:02:6A:00:0D:0A:75:CB:50:24:50:2B:AC:92:E8:05:09:05:15:21:AF:80:19:94:01:AD:65:E2:3A"
+      ]
+    }
+  }
+]

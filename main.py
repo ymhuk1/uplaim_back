@@ -93,6 +93,11 @@ async def read_root():
     return FileResponse("uplaim.html")
 
 
+@app.get("/.well-known/assetlinks.json", include_in_schema=False)
+async def read_root():
+    return FileResponse(".well-known/assetlinks.json")
+
+
 @app.get("/revocation_of_privacy", response_class=HTMLResponse, include_in_schema=False)
 async def revocation_of_privacy_form(request: Request):
     return templates.TemplateResponse("revocation_of_privacy.html", {"request": request})
