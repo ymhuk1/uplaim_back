@@ -1466,7 +1466,7 @@ class DeliveryRepository:
             )
 
             baskets = {}
-            for basket_id, company_name, product_id, product_name, photo, weight, quantity, product_price in baskets_data:
+            for basket_id, company_name, product_id, product_name, photo, weight, product_price, quantity in baskets_data:
                 if company_name not in baskets:
                     baskets[company_name] = {
                         "basket_id": basket_id,
@@ -1477,8 +1477,8 @@ class DeliveryRepository:
                     "product_name": product_name,
                     "photo": photo,
                     "weight": weight,
+                    "price": product_price,
                     "quantity": quantity,
-                    "price": product_price
                 })
 
             return baskets
