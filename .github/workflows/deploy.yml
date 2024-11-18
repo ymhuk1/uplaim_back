@@ -27,7 +27,6 @@ jobs:
           cd /var/www/site
           git config --global credential.helper store
           GIT_USER="viqto"
-#          GH_TOKEN="token"
           echo "https://${GIT_USER}:${GH_TOKEN}@github.com" > ~/.git-credentials
           cat ~/.git-credentials
           git pull
